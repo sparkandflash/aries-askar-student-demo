@@ -22,7 +22,7 @@
 - localhost:5001 - university agent
 - localhost:5000 - student agent
 
-- 5001/createInvite 
+- 5001/uniCreateInvite
 - returns the invite url from university
 
 - 5000/invitationeStatus

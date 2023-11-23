@@ -1,6 +1,5 @@
 
 import { startServer } from '@aries-framework/rest'
-import { connect } from 'ngrok'
 
 import {
   Agent,
@@ -11,9 +10,6 @@ import {
   CreateOutOfBandInvitationConfig,
   HttpOutboundTransport,
   OutOfBandRecord,
-  BasicMessage,
-  OutOfBandInvitation,
-  WsOutboundTransport,
   BasicMessageEventTypes,
   BasicMessageRole
 } from '@aries-framework/core'
@@ -23,8 +19,7 @@ import type { Express } from 'express'
 import { createExpressServer } from 'routing-controllers'
 import { TestLogger } from './utils/logger.js'
 import { BCOVRIN_TEST_GENESIS } from './utils/utils.js'
-// The startServer function requires an initialized agent and a port.
-// An example of how to setup an agent is located in the `samples` directory.
+
 const logger = new TestLogger(process.env.NODE_ENV ? LogLevel.error : LogLevel.debug)
 //logger copied from animo demo
 process.on('unhandledRejection', (error) => {
@@ -38,7 +33,6 @@ process.on('unhandledRejection', (error) => {
 })
 
 const initializeStudentAgent = async () => {
-  //const endpoint = await connect(5002)
   const StudentagentConfig: InitConfig = {
     label: 'student',
     walletConfig: {
@@ -57,7 +51,6 @@ const initializeStudentAgent = async () => {
     logger: logger,
     autoAcceptConnections: true,
     publicDidSeed: process.env.AGENT_PUBLIC_DID_SEED,
-    // connectionImageUrl: 'https://i.imgur.com/g3abcCO.png',
   }
   const Studentagent = new Agent(
     StudentagentConfig, agentDependencies)
@@ -69,7 +62,6 @@ const initializeStudentAgent = async () => {
 
 
 const initializeUniAgent = async () => {
-  // const endpoint = await connect(5003)
   const uniagentConfig: InitConfig = {
     label: 'uni',
     walletConfig: {
@@ -88,7 +80,6 @@ const initializeUniAgent = async () => {
     autoAcceptConnections: true,
     publicDidSeed: process.env.UNI_PUBLIC_DID_SEED,
 
-    //  connectionImageUrl: 'https://i.imgur.com/g3abcCO.png',
   }
 
   const uniagent = new Agent(uniagentConfig, agentDependencies)
@@ -211,7 +202,7 @@ const run = async () => {
   })
 
   uniApp.get('/sendMsg:msg', async (req, res) => {
-    //insert logic here
+    
     let msg = req.params.msg
     const connectionRecord = await getConnectionRecord(UNIAgent, bandRec || {} as OutOfBandRecord)
     await UNIAgent.basicMessages.sendMessage(connectionRecord.id, msg);
@@ -221,7 +212,7 @@ const run = async () => {
   })
   messageListener(UNIAgent, "university")
   studentApp.get('/sendMsg:msg', async (req, res) => {
-    //insert logic here
+    
     let msg = req.params.msg
     const connectionRecord = await getConnectionRecord(studentAgent, bandRec2 || {} as OutOfBandRecord)
     await studentAgent.basicMessages.sendMessage(connectionRecord.id, msg);
