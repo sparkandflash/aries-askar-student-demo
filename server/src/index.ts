@@ -31,11 +31,11 @@ const run = async () => {
   })
 
   // http://localhost:5001/uniCreateInvite/:http://localhost:5002 to test
-  uniApp.get('/uniCreateInvite:url', async (req, res) => {
-    let url = req.params.url
+  uniApp.get('/uniCreateInvite', async (req, res) => {
+    let url = req.query.data as string
     const { outOfBandRecord, invitationUrl } = await createNewInvitation(UNIAgent,url)
     console.log('uni creating invite')
-    res.send('INVITE CREATED and CONNECTED. inviteUrl:  ' + invitationUrl)
+    res.send(invitationUrl)
     setInviteUrl(invitationUrl, outOfBandRecord)
   })
 

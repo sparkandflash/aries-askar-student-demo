@@ -28,8 +28,8 @@ const run = async () => {
     console.log('We now have an active connection to use in the following tutorials')
   })
 
-  studentApp.get('/accept:url', async (req, res) => {
-    let url = req.params.url
+  studentApp.get('/accept', async (req, res) => {
+    let url = req.query.data as string
     console.log('student recevied invite: ' + inviteUrl)
     console.log('Accepting the invitation as Student...')
     const outOfBandRecord = await receiveInvitation(studentAgent, url)
