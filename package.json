@@ -14,6 +14,7 @@
         "start": "yarn server && yarn client ",
         "client": "yarn workspace client start",
         "server":"yarn workspace server start",
+        "test-server":"yarn workspace server start-test",
         "uni": "yarn workspace server uni",
         "build-server": "yarn workspace server build"
     },

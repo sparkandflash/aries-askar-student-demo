@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "start": "ts-node --esm src/index.ts",
+    "start-test": "ts-node --esm src/studentIndex.ts",
     "build": "rm -rf build && tsc"
   },
   "keywords": [],

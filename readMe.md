@@ -22,14 +22,15 @@
 - localhost:5001 - university agent
 - localhost:5000 - student agent
 
-- 5001/createInvite 
-- returns the invite url from university
+- localhost:5001/uniCreateInvite:url
 
-- 5000/invitationeStatus
+- returns the invite url from university for the given url, which is the recevier end point url
+
+- localhost:5000/accept:url
 - student accepts the invite from university
 
-- 5001/sendMsg:msg
+- localhost:5001/sendMsg:msg
 - university sends msg to the student
 
-- 5000/sendMsg:msg
+- localhost:5000/sendMsg:msg
 - student sends msg to the university
