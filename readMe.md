@@ -5,7 +5,9 @@
 - uni sends invite to student
 - uni and student can send msgs to eachother
 
-- ### pending impelemnations 
+- ### pending impelemnations
+- creating Certificates
+- creating new students
 - credential interations
 - proof interations
 - start stop functions
