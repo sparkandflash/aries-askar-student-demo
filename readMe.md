@@ -16,6 +16,7 @@
 - ### setting up
 - `nvm use` uses node 18
 - `yarn install`
+  for issues with libindy- refer the hyperledger resource document- [doc](https://docs.google.com/document/d/1BdrgOWiEzygZbG9nVPr2hbi-rALPZAREiB5lGPos57c/edit?usp=sharing)
 - `yarn start` - starts the server
 - `yarn client` - starts the angular front end
 
