@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
     FormLabel, Text, HStack, VStack, Input, Button
 } from "@chakra-ui/react"
-import axios from "axios"
 import { getCredDefId, issueCredential } from "../api/credApi";
 
 function Prof() {
@@ -26,14 +25,14 @@ function Prof() {
         year: form.year,
     }
 
-  
+
     async function addNewCerd() {
- //send this form data to a db first
+        //TODO:  send this form data to a db first
         let response = issueCredential(credId, form)
         console.log(response)
 
         //move this function to student obtaining the certificate flow, where cerificate details are fetched from db
-       
+
     }
     useEffect(() => {
         getCredId();
