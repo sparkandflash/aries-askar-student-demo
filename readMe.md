@@ -4,12 +4,12 @@
 ### implemented:
 - uni sends invite to student
 - uni and student can send msgs to eachother
+- uni register ceritificate schema [without connection id]
+- uni creates new certificates using schema [without conenction id]
 
-### pending impelemnations
-- creating Certificates
-- credential interations
-- proof interations
-- start stop functions
+### pending implementations
+- ceritificate details is stored in db
+- when student accepts- certificate is fetched from db, created by uni agent and sent to student along with connection invitation in form of qr code
 
 ### setting up
 - `nvm use` 
