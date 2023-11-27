@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "start": "ts-node --esm src/index.ts",
-    "start-test": "ts-node --esm src/studentIndex.ts",
+    "test": "ts-node --esm src/studentIndex.ts",
     "build": "rm -rf build && tsc"
   },
   "keywords": [],
@@ -19,12 +19,12 @@
     "@aries-framework/rest": "^0.9.5",
     "@types/express": "^4.17.14",
     "express": "^4.18.2",
-    "tslog": "^3.3.4"
+    "tslog": "^3.3.4",
+    "typedi": "^0.10.0"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
-    "typescript": "~4.8.4",
-    "ts-node-dev": "^2.0.0"
-   
+    "ts-node-dev": "^2.0.0",
+    "typescript": "~4.8.4"
   }
 }

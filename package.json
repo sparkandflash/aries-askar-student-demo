@@ -11,11 +11,10 @@
         "prettier": "prettier '**/*.+(js|json|ts|md|yml|yaml)'",
         "lint": "eslint --ignore-path .gitignore .",
         "format": "yarn prettier --write",
-        "start": "yarn server && yarn client ",
         "client": "yarn workspace client start",
         "server":"yarn workspace server start",
-        "test-server":"yarn workspace server start-test",
-        "uni": "yarn workspace server uni",
+        "test-server":"yarn workspace server test",
+        "test-client":"yarn workspace test-client start",
         "build-server": "yarn workspace server build"
     },
     "devDependencies": {

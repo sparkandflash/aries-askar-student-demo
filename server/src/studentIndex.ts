@@ -39,8 +39,8 @@ const run = async () => {
     }
   })
 
-  studentApp.get('/sendMsg:msg', async (req, res) => {
-    let msg = req.params.msg
+  studentApp.get('/sendMsg', async (req, res) => {
+    let msg = req.query.msg  as string
     const connectionRecord = await getConnectionRecord(studentAgent, bandRec2 || {} as OutOfBandRecord)
     await studentAgent.basicMessages.sendMessage(connectionRecord.id, msg);
     console.log('stu sending msg')

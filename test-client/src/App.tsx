@@ -7,7 +7,6 @@ import {
   Text,
   theme,
 } from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
 import axios, { AxiosResponse } from 'axios';
 import { useState } from "react";
 
@@ -37,7 +36,6 @@ export const App = () =>{
   
   <ChakraProvider theme={theme}>
     <Box textAlign="center" fontSize="xl">
-        <ColorModeSwitcher justifySelf="flex-end" />
         <Input isRequired={true}  onChange={e => setValue(e.target.value)}  placeholder='enter url' />
         university <Button  onClick={genInvite}>generate invite</Button>
      <Text fontSize="sm">   {JSON.stringify(apiResponse?.data)}</Text>

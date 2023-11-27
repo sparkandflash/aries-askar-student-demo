@@ -1,7 +1,9 @@
+import { getCredDefId, issueCredential } from "../api/credApi";
 import {
     FormLabel, HStack, VStack, Input, Button
 } from "@chakra-ui/react"
 function stud() {
+
     return (
 
         <VStack marginTop={40} spacing={5} direction='column'>
