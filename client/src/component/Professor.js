@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
     FormLabel, Text, HStack, VStack, Input, Button
 } from "@chakra-ui/react"
-import { getCredDefId, issueCredential } from "../api/credApi";
+import { getCredDefId, issueCredential } from "../../../next-client/src/api/credApi";
 
 function Prof() {
     const [credId, setCredId] = useState('')

@@ -1,8 +1,8 @@
 import { startServer } from '@aries-framework/rest'
 import { initializeAgent } from './baseAgent.js'
-import { createCredOffer, createNewInvitation, getConnectionRecord, messageListener, receiveInvitation, setupConnectionListener } from './utils/agentFunctions.js'
+import { createCredOffer, createNewInvitation, createNewInvitationwithMsg, getConnectionRecord, messageListener, receiveInvitation, setupConnectionListener } from './utils/agentFunctions.js'
 import { OutOfBandRecord } from '@aries-framework/core'
-import type { WalletConfig } from '@aries-framework/core'
+import type { AgentMessage, WalletConfig } from '@aries-framework/core'
 import type { Express } from 'express'
 import { createExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
@@ -37,6 +37,15 @@ const run = async () => {
   uniApp.get('/uniCreateInvite', async (req, res) => {
     let url = req.query.data as string
     const { outOfBandRecord, invitationUrl } = await createNewInvitation(UNIAgent,url,)
+    console.log('uni creating invite')
+    res.send(invitationUrl)
+    setInviteUrl(invitationUrl, outOfBandRecord)
+  })
+
+  uniApp.post('/uniCreateInviteMsg', async (req, res) => {
+    const body = req.body as { url: string; msg: AgentMessage }; // Assuming the body has { credId: string, data: any }
+    const { url, msg } = body;
+    const { outOfBandRecord, invitationUrl } = await createNewInvitationwithMsg(UNIAgent,url,msg)
     console.log('uni creating invite')
     res.send(invitationUrl)
     setInviteUrl(invitationUrl, outOfBandRecord)
