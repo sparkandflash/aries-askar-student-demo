@@ -1,4 +1,4 @@
-import { getCredDefId, issueCredential } from "../api/credApi";
+import { getCredDefId, issueCredential } from "../../../next-client/src/api/credApi";
 import {
     FormLabel, HStack, VStack, Input, Button
 } from "@chakra-ui/react"

@@ -1,4 +1,6 @@
 //various agent functions- invite recevive etc
+
+
 import {
   Agent,
   ConnectionEventTypes,
@@ -8,9 +10,10 @@ import {
   OutOfBandRecord,
   BasicMessageEventTypes,
   BasicMessageRole,
-  AutoAcceptCredential
+  AutoAcceptCredential,
 } from '@aries-framework/core'
-import type { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
+import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
+
 
 // The startServer function requires an initialized agent and a port.
 // An example of how to setup an agent is located in the `samples` directory.
@@ -19,7 +22,7 @@ import type { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, Create
 
 
 export const createNewInvitation = async (agent: Agent, url: string) => {
-  const senderConfig: CreateOutOfBandInvitationConfig  = {
+  const senderConfig: CreateOutOfBandInvitationConfig = {
     label: "invite-from-uni-to-student",
     imageUrl: "https://i.imgur.com/g3abcCO.png",
     autoAcceptConnection: true,
@@ -31,12 +34,15 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
   }
 }
 
-export const createNewInvitationwithMsg = async (agent: Agent, url: string, msg:AgentMessage) => {
-  const senderConfig: CreateOutOfBandInvitationConfig  = {
+export const createNewInvitationwithMsg = async (agent: Agent, url: string, msg: any) => {
+  const agentmsg = new AgentMessage;
+  agentmsg.toJSON(msg)
+
+  const senderConfig: CreateOutOfBandInvitationConfig = {
     label: "invite-from-uni-to-student",
     imageUrl: "https://i.imgur.com/g3abcCO.png",
     autoAcceptConnection: true,
-    messages: [msg]
+    messages: [agentmsg]
   }
   const outOfBandRecord = await agent.oob.createInvitation(senderConfig)
   return {
@@ -96,19 +102,19 @@ export async function messageListener(agent: Agent, name: string) {
 export async function createCredOffer(agent: Agent, credId: string, attributeData: { id: string; name: string; course: string; year: string; mark: string }) {
 
   const credFormat: CreateOfferOptions<[IndyCredentialFormat], [V1CredentialService, V2CredentialService<[IndyCredentialFormat]>]> = {
-    protocolVersion: 'v1'||'v2',
+    protocolVersion: 'v1' || 'v2',
     credentialFormats: {
-        indy: {
-          credentialDefinitionId: credId,
-          attributes: [
-            { name: 'id', value: attributeData.id },
-            { name: 'name', value: attributeData.name },
-            { name: 'course', value: attributeData.course },
-            { name: 'year', value: attributeData.year },
-            { name: 'mark', value: attributeData.mark },
-          ]
-        }
-        
+      indy: {
+        credentialDefinitionId: credId,
+        attributes: [
+          { name: 'id', value: attributeData.id },
+          { name: 'name', value: attributeData.name },
+          { name: 'course', value: attributeData.course },
+          { name: 'year', value: attributeData.year },
+          { name: 'mark', value: attributeData.mark },
+        ]
+      }
+
     },
     autoAcceptCredential: AutoAcceptCredential.Always
   }

@@ -14,6 +14,7 @@
         "client": "yarn workspace client start",
         "server":"yarn workspace server start",
         "test-server":"yarn workspace server test",
+        "next-client":"yarn workspace next-client dev", 
         "test-client":"yarn workspace test-client start",
         "build-server": "yarn workspace server build"
     },
