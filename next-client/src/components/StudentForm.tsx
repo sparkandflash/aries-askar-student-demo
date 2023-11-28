@@ -1,6 +1,6 @@
 //add student form here
 import React, { useEffect, useState } from 'react'
-import QRCode from 'react-qr-code';
+import {QRCodeCanvas} from 'qrcode.react';
 import randomStudentData, { Attributes, Cred, StudentData, inviteValue } from '../studentData'; // Assuming you have a type/interface named StudentData
 
 import {
@@ -58,8 +58,8 @@ function stud() {
 
 
     return (
-        <VStack marginTop={40} spacing={5} direction='column'>
-               {inviteUrl?<QRCode value={inviteUrl} />:<div></div> }
+        <VStack marginTop={30} spacing={5} direction='column'>
+               {inviteUrl?<QRCodeCanvas size={400} value={inviteUrl} />:<div></div> }
             <HStack>
                 <FormLabel width={20}>RollNo</FormLabel>
                 <Input width={350} onChange={e => setRollId(e.target.value)} placeholder='Your ID' />
@@ -87,8 +87,9 @@ function stud() {
                     )
                 }
             </div> : <div> </div>}
-            <Text>cred def id: {credDefId}</Text>
-            <Text>invite: {inviteUrl}</Text>
+            <Box  width="70%"><Text>cred def id: {credDefId}</Text>
+            <Text>invite: {inviteUrl}</Text></Box>
+            
         
         </VStack>
 

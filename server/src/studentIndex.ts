@@ -30,7 +30,7 @@ const run = async () => {
 
   studentApp.get('/accept', async (req, res) => {
     let url = req.query.data as string
-    console.log('student recevied invite: ' + inviteUrl)
+    console.log('student recevied invite: ' + url)
     console.log('Accepting the invitation as Student...')
     const outOfBandRecord = await receiveInvitation(studentAgent, url)
     if (outOfBandRecord) {
