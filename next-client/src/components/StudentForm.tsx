@@ -1,19 +1,21 @@
 //add student form here
 import React, { useEffect, useState } from 'react'
+import QRCode from 'react-qr-code';
 import randomStudentData, { Attributes, Cred, StudentData, inviteValue } from '../studentData'; // Assuming you have a type/interface named StudentData
 
 import {
     FormLabel, HStack, VStack, Input, Button, Text, Box
 } from "@chakra-ui/react"
 import { getCredDefId, issueCredential } from '@/pages/api/credApi';
-import { AgentMessage } from '@aries-framework/core';
+import { makeInvite } from '@/pages/api/connectionAPI';
 function stud() {
     const [rollId, setRollId] = useState<string>('');
     const [credStatus, setCredStatus] = useState(false)
     const [cred, setCred] = useState<Cred[] | undefined>()
     const [student, setStudent] = useState<StudentData | undefined>()
     const [credDefId, setCredDefId] = useState("")
-    const [agentMsg, setAgentMsg] = useState()
+
+    const [inviteUrl, setInviteUrl] = useState<string>('');
     async function getCredId() {
         let id = await getCredDefId()
         setCredDefId(id)
@@ -32,19 +34,19 @@ function stud() {
         }
     }
     //import the aries asakar action action functions- give it cred details
-    async function acceptCred(credData: Attributes) {
+    async function acceptCred(attr:Attributes) {
+        //function to send attribute data, return with agent msg, then a function to send agentmsg, return with invite url- sent into a qr code pop up
         try {
-            await issueCredential(credDefId, credData).then(async (response: any) => {
-                console.log(response);
-
-                let value: inviteValue = {
-                    url: "",
-                    agentMsg: response,
-                };
-
-                //let invite = await makeInvite(value);
-             //   console.log(invite);
-            });
+        
+                await issueCredential(credDefId,attr).then(async (response: any) => {
+                    console.log(response.data.message);
+                   
+                    let invite = await makeInvite(response.data.message);
+                    setInviteUrl(invite)
+                console.log(invite);
+                });
+            
+        
         } catch (error) {
             console.error("Error accepting credential:", error);
         }
@@ -57,6 +59,7 @@ function stud() {
 
     return (
         <VStack marginTop={40} spacing={5} direction='column'>
+               {inviteUrl?<QRCode value={inviteUrl} />:<div></div> }
             <HStack>
                 <FormLabel width={20}>RollNo</FormLabel>
                 <Input width={350} onChange={e => setRollId(e.target.value)} placeholder='Your ID' />
@@ -73,7 +76,8 @@ function stud() {
                                 return (
 
                                     <Box key={item.name}>
-                                        name:{item.name} | course:{item.course} | id:{item.id}  <Button onClick={e => acceptCred(item)} >accept</Button>
+                                      
+                                        name:{item.name} | course:{item.course} | id:{item.id}  <Button onClick={() => acceptCred(item)} >accept</Button>
                                     </Box>
                                 )
                             }
@@ -84,6 +88,8 @@ function stud() {
                 }
             </div> : <div> </div>}
             <Text>cred def id: {credDefId}</Text>
+            <Text>invite: {inviteUrl}</Text>
+        
         </VStack>
 
     )

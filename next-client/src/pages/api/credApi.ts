@@ -38,16 +38,3 @@ export async function issueCredential(credId:string, attributeData:Attributes) {
         console.log("credential issue failed")
     }
 }
-
-export async function issueCredentialTOServer(credId:string, attributeData:Attributes) {
-    try {
-    const body ={
-        credId:credId,
-        data:attributeData
-    }
-    return await axios.post(`http://localhost:5001/createCred`,body)
-    }
-    catch (e) {
-        console.log("credential issue failed")
-    }
-}
