@@ -1,7 +1,7 @@
 import {
     TabPanel, Tab, TabList, Tabs, TabPanels
 } from "@chakra-ui/react"
-import Prof from './Professor.js';
+import Prof from './professor.js';
 import Stud from './student.js';
 function Search() {
     return (

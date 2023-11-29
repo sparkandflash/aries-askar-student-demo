@@ -1,23 +1,19 @@
-import axios, { AxiosResponse } from 'axios';
-import React ,{ useState } from 'react';
-import { async } from 'rxjs';
-
-async function invite() {
-  // const [data,setData] = useState();
+async function studentID(rollno) {
   const requestoptions = {
-    method: "POST"
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   };
-    const response = `http://localhost:5001/api/students/:rollNo`;
-    return fetch(response, requestoptions)
-      .then((data) => {
-        console.log("Category Details: ", data);
-        return data;
-      });
-       
-}
+  const response1 = `http://localhost:5001/api/students/${rollno}`;
+  return fetch(response1, requestoptions)
+    .then((response) => response.json())
+    .then((data) => {
+      return data;
+    });
 
-
-const profservice = {
-    invite
 }
-export default profservice
+const stuservice = {
+  studentID
+}
+export default stuservice

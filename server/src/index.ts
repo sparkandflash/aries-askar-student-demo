@@ -8,7 +8,15 @@ import { createExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
 import { CredDefService } from './controller/CredDefService.js'
 import express from 'express'
+import mysql from "mysql"
+import bodyParser from "body-parser"
 
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'Sandu@66',
+    database: 'college'
+  });
 const run = async () => {
 
   let inviteUrl: string
@@ -25,6 +33,7 @@ const run = async () => {
     controllers: ['./controllers/**/*.ts', './controllers/**/*.js'],
     cors: true,
   })
+  uniApp.use(bodyParser.json());
   const uniWConfig: WalletConfig = {
     id: 'uni-wallet',
     key: 'demoagentacme0000000000000000000'
@@ -89,6 +98,32 @@ const run = async () => {
     res.send(response)
   })
 
+uniApp.get('/api/students/:rollNo', (req, res) => {
+    const rollNo = req.params.rollNo;
+
+    const query = 'SELECT * FROM students WHERE rollNo = ?';
+    connection.query(query, [rollNo], (err, result) => {
+      if (err) {
+        res.json({ message: err.message });
+      }
+      else {
+        res.json({ value: result });
+      }
+    });
+  });
+
+  uniApp.post('/api/addStudents', (req, res) => {
+    const { rollno, name, cource, year, mark } = req.body.student;
+
+    const insertQuery = 'INSERT INTO students (rollno, name, course, year, mark) VALUES (?, ?, ?, ?, ?)';
+    connection.query(insertQuery, [rollno, name, cource, year, mark], (insertErr, result) => {
+      if (insertErr) {
+        res.json({ message: insertErr.message, value: 'Error' });
+      } else {
+        res.json({ message: 'Student added successfully', value: null });
+      }
+    });
+  });
 
   await startServer(UNIAgent, {
     port: 5001,
