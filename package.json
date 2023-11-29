@@ -12,10 +12,10 @@
         "lint": "eslint --ignore-path .gitignore .",
         "format": "yarn prettier --write",
         "client": "yarn workspace client start",
-        "server":"yarn workspace server start",
-        "test-server":"yarn workspace server test",
-        "next-client":"yarn workspace next-client dev", 
-        "test-client":"yarn workspace test-client start",
+        "server": "yarn workspace server start",
+        "test-server": "yarn workspace server test",
+        "next-client": "yarn workspace next-client dev",
+        "test-client": "yarn workspace test-client start",
         "build-server": "yarn workspace server build"
     },
     "devDependencies": {
@@ -35,6 +35,7 @@
     },
     "dependencies": {
         "@types/node": "^20.9.4",
+        "@types/yargs": "^17.0.32",
         "ngrok": "^5.0.0-beta.2",
         "routing-controllers": "^0.10.4",
         "ts-node": "^10.9.1"
