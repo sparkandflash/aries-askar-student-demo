@@ -26,8 +26,10 @@
         yarn test-client - starts simple testing front end university and student testing
 ```
 
-- localhost:5001 - university agent
-- localhost:5000 - student agent
+- localhost:5001 - university server
+- localhost:5000 - test-student agent
+- localhost:5003 - university agent endPoint 
+- replace the localhost with the name of the hosting service for the uni agent
 
 ### server apis
 - `localhost:5001/uniCreateInvite?url=`

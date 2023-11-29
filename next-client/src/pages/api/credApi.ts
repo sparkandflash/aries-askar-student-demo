@@ -13,9 +13,9 @@ export async function getCredDefId() {
     }
 }
 
-export async function issueCredential(credId:string, attributeData:Attributes) {
+export async function issueCredential(credId:string, condId:string, attributeData:Attributes) {
     try {
-      let response:AgentMessage = await axios.post(`http://localhost:5001/credentials/create-offer`, {
+      let response:AgentMessage = await axios.post(`http://localhost:5001/credentials/offer-credential`, {
             protocolVersion: "v1" || "v2",
             credentialFormats: {
                 indy: {
@@ -30,6 +30,7 @@ export async function issueCredential(credId:string, attributeData:Attributes) {
                 }
             },
             autoAcceptCredential: "always",
+            connectionId:condId
 
         }) 
         return response

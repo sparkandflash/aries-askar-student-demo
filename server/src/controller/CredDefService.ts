@@ -53,7 +53,6 @@ export class CredDefService {
         tag: 'university-marks-card',
       },
     })
-
     this.credentialDefinitions = await Promise.all([cd1])
   }
 

@@ -10,6 +10,7 @@ import {
 import { agentDependencies, HttpInboundTransport } from '@aries-framework/node'
 import type { InitConfig, WalletConfig, } from '@aries-framework/core'
 import { TestLogger } from './utils/logger.js'
+import { connect } from 'ngrok'
 import { BCOVRIN_TEST_GENESIS } from './utils/utils.js'
 // The startServer function requires an initialized agent and a port.
 // An example of how to setup an agent is located in the `samples` directory.
@@ -27,7 +28,7 @@ process.on('unhandledRejection', (error) => {
 
 
 export async function initializeAgent(label:string, wConfig:WalletConfig, portNum:number, didSeed:string | undefined){
-  //const endpoint = await connect(5002)
+  const endpoint = await connect(5003)
   const config: InitConfig = {
     label: label,
     walletConfig: wConfig,
@@ -39,11 +40,12 @@ export async function initializeAgent(label:string, wConfig:WalletConfig, portNu
         isProduction: false,
       },
     ],
-    endpoints: ['http://localhost:'+portNum],
+    //endpoints: ['https://5003-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io'], 
+    endpoints:[endpoint],
     logger: logger,
     autoAcceptConnections: true,
     publicDidSeed: didSeed,
-    // connectionImageUrl: 'https://i.imgur.com/g3abcCO.png',
+    connectionImageUrl: 'https://i.imgur.com/g3abcCO.png',
   }
   const agent = new Agent(
     config, agentDependencies)

@@ -23,7 +23,7 @@ import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOffer
 
 export const createNewInvitation = async (agent: Agent, url: string) => {
   const senderConfig: CreateOutOfBandInvitationConfig = {
-    label: "invite-from-uni-to-student",
+    label: "xyz-university",
     imageUrl: "https://i.imgur.com/g3abcCO.png",
     autoAcceptConnection: true,
   }
@@ -37,28 +37,43 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
 export const createNewInvitationwithMsg = async (agent: Agent, url: string, msg: any) => {
   const agentmsg = new AgentMessage;
   agentmsg.toJSON(msg)
-
+console.log(agentmsg)
   const senderConfig: CreateOutOfBandInvitationConfig = {
-    label: "invite-from-uni-to-student",
-    imageUrl: "https://i.imgur.com/g3abcCO.png",
+    label: "xyz-university",
+    imageUrl: "https://i.imgur.com/ovIzDCt.jpeg",
     autoAcceptConnection: true,
     messages: [agentmsg]
   }
-  const outOfBandRecord = await agent.oob.createInvitation(senderConfig)
+  const outOfBandRecord = await agent.oob.createLegacyInvitation(senderConfig)
   return {
-    invitationUrl: outOfBandRecord.outOfBandInvitation.toUrl({ domain: url }),
-    outOfBandRecord
+    invitationUrl: outOfBandRecord.invitation.toUrl({ domain: url }),
+    outOfBandRecord: outOfBandRecord.outOfBandRecord
   }
 }
-const reciverConfig: ReceiveOutOfBandInvitationConfig = {
-  label: "invite-recevied-from-uni",
-  imageUrl: "https://i.imgur.com/g3abcCO.png",
-  autoAcceptInvitation: true,
-  autoAcceptConnection: true,
-  reuseConnection: true
 
+export const createNewLegacyInvitation = async (agent: Agent, url: string) => {
+  const senderConfig: CreateOutOfBandInvitationConfig = {
+    label: "xyz-university",
+    imageUrl: "https://i.imgur.com/ovIzDCt.jpeg",
+    autoAcceptConnection: true,
+  }
+  const outOfBandRecord = await agent.oob.createLegacyInvitation(senderConfig)
+  return {
+    invitationUrl: outOfBandRecord.invitation.toUrl({ domain: url }),
+    outOfBandRecord: outOfBandRecord.outOfBandRecord
+  }
 }
+
+//for testing purposes
 export const receiveInvitation = async (agent: Agent, invitationUrl: string) => {
+  const reciverConfig: ReceiveOutOfBandInvitationConfig = {
+    label: "invite-recevied-from-uni",
+    imageUrl: "https://i.imgur.com/ovIzDCt.jpeg",
+    autoAcceptInvitation: true,
+    autoAcceptConnection: true,
+    reuseConnection: true
+
+  }
   const { outOfBandRecord } = await agent.oob.receiveInvitationFromUrl(invitationUrl, reciverConfig)
   console.log(`out of band id: ` + outOfBandRecord.id)
   return outOfBandRecord
@@ -81,13 +96,10 @@ export async function getConnectionRecord(agent: Agent, outOfBandRecord: OutOfBa
   if (outOfBandRecord.id) {
     console.log("connection unavailable")
   }
-
   const [connection] = await agent.connections.findAllByOutOfBandId(outOfBandRecord.id)
-
   if (!connection) {
     console.log("connection records unavailable")
   }
-
   return connection
 }
 
@@ -99,8 +111,8 @@ export async function messageListener(agent: Agent, name: string) {
   })
 }
 
+//this function is not used
 export async function createCredOffer(agent: Agent, credId: string, attributeData: { id: string; name: string; course: string; year: string; mark: string }) {
-
   const credFormat: CreateOfferOptions<[IndyCredentialFormat], [V1CredentialService, V2CredentialService<[IndyCredentialFormat]>]> = {
     protocolVersion: 'v1' || 'v2',
     credentialFormats: {

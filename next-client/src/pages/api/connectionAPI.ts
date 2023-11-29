@@ -21,12 +21,27 @@ import type { AxiosResponse } from 'axios'
 
 
 
-export async function makeInvite(msg: AgentMessage) {
+export async function makeInviteMSg(msg: AgentMessage) {
   try {
     const response = await axios.post(`http://localhost:5001/uniCreateInviteMsg`, msg);
-    return response.data;
+    return response.data;  
   } catch (error) {
     console.log('Invitation creation failed:', error);
     throw error; // Re-throw the error for further handling if needed
   }
 }
+export async function makeInvite() {
+  try {
+    const response = await axios.get(`http://localhost:5001/createInvite`);
+    return response  //Should return invite url and out of band id
+  } catch (error) {
+    console.log('Invitation creation failed:', error);
+    throw error; // Re-throw the error for further handling if needed
+  }
+}
+
+export async function getConnectionId(outOfBandId:string){
+  const response = await axios.get(`http://localhost:5001/connections?outOfBandId=${outOfBandId}`);
+  return response
+}
+

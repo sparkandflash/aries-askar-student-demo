@@ -1,6 +1,6 @@
 import { startServer } from '@aries-framework/rest'
 import { initializeAgent } from './baseAgent.js'
-import { createCredOffer, createNewInvitation, createNewInvitationwithMsg, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
+import { createCredOffer, createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
 import { OutOfBandRecord } from '@aries-framework/core'
 import type { AgentMessage, WalletConfig } from '@aries-framework/core'
 import type { Express } from 'express'
@@ -34,6 +34,7 @@ const run = async () => {
     console.log('We now have an active connection to use in the following tutorials')
   })
 
+  // ---------SERVER API MAPPINGS-------START
   // http://localhost:5001/uniCreateInvite?url=http://localhost:5002 to test
   uniApp.get('/uniCreateInvite', async (req, res) => {
     let url = req.query.data as string
@@ -43,17 +44,19 @@ const run = async () => {
     setInviteUrl(invitationUrl, outOfBandRecord)
   })
 
-  uniApp.use(express.json());
-  uniApp.post('/uniCreateInviteMsg', async (req, res)=>{
+  uniApp.get('/createInvite', async (req, res) => {
+    const { outOfBandRecord, invitationUrl } =await createNewLegacyInvitation(UNIAgent, 'didcomm://aries_connection_invitation');
+    console.log('uni creating legacy invite')
+    res.send({
+      url:invitationUrl,
+      id: outOfBandRecord.id})
+    setInviteUrl(invitationUrl, outOfBandRecord)
+  })
+
+  uniApp.use(express.json()); //gives error if this line is removed
+  uniApp.post('/uniCreateInviteMsg', async (req, res) => {
     try {
       let msg = req.body as AgentMessage;
-      let msgString = msg.toJSON
-      if(!msg){
-        console.log("msg not recevied")
-      }
-      else{
-        console.log(msg)
-      }
       const { outOfBandRecord, invitationUrl } = await createNewInvitationwithMsg(UNIAgent, 'didcomm://aries_connection_invitation', msg);
       console.log('uni creating invite');
       res.send(invitationUrl);
@@ -81,13 +84,15 @@ const run = async () => {
     res.send(credDefService.getCredentialDefinitionIdByTag('university-marks-card'))
   })
 
-  uniApp.post('/createCred', async (req, res) => {
-    const body = req.body as { credId: string; data: any }; // Assuming the body has { credId: string, data: any }
-    const { credId, data } = body;
-
-    const response = await createCredOffer(UNIAgent, credId, data)
-    res.send(response)
-  })
+  uniApp.post('/inviteStatus', async (req, res) => {
+    res.writeHead(200, {
+      Connection: "keep-alive",
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+    });
+    
+  });
+  //------SERVER API MAPPINGS-------END
 
 
   await startServer(UNIAgent, {
