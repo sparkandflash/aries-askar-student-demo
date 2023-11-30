@@ -43,7 +43,7 @@ export async function issueCredential(credId:string, condId:string, attributeDat
 export async function issueCredentialOffer(credId:string, attributeData:Attributes) {
     try {
    
-       return await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/create-offer`, {
+      const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/create-offer`, {
             protocolVersion: "v1" || "v2",
             credentialFormats: {
                 indy: {
@@ -60,6 +60,7 @@ export async function issueCredentialOffer(credId:string, attributeData:Attribut
             autoAcceptCredential: "always",
 
         }) 
+        return response.data
     }
     catch (e) {
         console.log("credential issue failed")

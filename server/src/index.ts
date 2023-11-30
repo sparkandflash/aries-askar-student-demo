@@ -1,6 +1,6 @@
 import { startServer } from '@aries-framework/rest'
 import { initializeAgent } from './baseAgent.js'
-import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
+import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, createNewLegacyNoConnectInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
 import { OutOfBandRecord, RecordNotFoundError } from '@aries-framework/core'
 import type { AgentMessage, WalletConfig } from '@aries-framework/core'
 import type { Express } from 'express'
@@ -8,9 +8,9 @@ import { createExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
 import { CredDefService } from './controller/CredDefService.js'
 import express from 'express'
+import { connect } from 'ngrok'
 
 const run = async () => {
-
   let inviteUrl: string
   let bandRec: OutOfBandRecord | undefined;
   function setInviteUrl(url: string, outOfBandRecord: OutOfBandRecord) {
@@ -57,13 +57,14 @@ const run = async () => {
     setInviteUrl(invitationUrl, outOfBandRecord)
   })
 
-  uniApp.post('/uniCreateInviteMsg', async (req, res) => {
+  uniApp.post('/createInviteMsg', async (req, res) => {
     try {
       let msg = req.body as AgentMessage;
-      const { outOfBandRecord, invitationUrl } = await createNewInvitationwithMsg(UNIAgent, 'didcomm://aries_connection_invitation', msg);
+      const { invitationUrl } = await createNewLegacyNoConnectInvitation(UNIAgent, {
+       domain: 'didcomm://aries_connection_invitation',
+       messages:msg});
       console.log('uni creating invite');
       res.send(invitationUrl);
-      setInviteUrl(invitationUrl, outOfBandRecord);
     } catch (error) {
       console.error('Error creating invitation:', error);
       res.status(500).send('Internal Server Error');
@@ -73,6 +74,7 @@ const run = async () => {
   uniApp.get('/sendMsg', async (req, res) => {
     let msg = req.query.msg as string
     let connectionId = req.query.connectionId as string; // Assuming connectionId is present in the URL
+
     await UNIAgent.basicMessages.sendMessage(connectionId, msg);
     console.log('uni sending msg')
     res.send('uni msg sent')
@@ -119,7 +121,7 @@ const run = async () => {
     }
   });
   //------SERVER API MAPPINGS-------END
-
+  const endpoint = await connect(5001)
   await startServer(UNIAgent, {
     port: 5001,
     app: uniApp,

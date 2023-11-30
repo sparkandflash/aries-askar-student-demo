@@ -56,4 +56,43 @@ const randomStudentData: StudentData[] = [
     // Add more students as needed
 ];
 
+export const message = {
+    "message": {
+        "@type": "https://didcomm.org/issue-credential/1.0/offer-credential",
+        "@id": "bd69b96a-0732-44bd-90b3-4752a2a54cc7",
+        "credential_preview": {
+            "@type": "https://didcomm.org/issue-credential/1.0/credential-preview",
+            "attributes": [
+                {
+                    "name": "id",
+                    "value": "9"
+                },
+                {
+                    "name": "name",
+                    "value": "gara"
+                },
+                {
+                    "name": "course",
+                    "value": "cse"
+                },
+                {
+                    "name": "year",
+                    "value": "9"
+                },
+                {
+                    "name": "mark",
+                    "value": "890"
+                }
+            ]
+        },
+        "offers~attach": [
+            {
+                "@id": "libindy-cred-offer-0",
+                "mime-type": "application/json",
+               
+            }
+        ]
+    }
+}
+
 export default randomStudentData;

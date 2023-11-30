@@ -25,6 +25,7 @@ const useAttributes = () => {
           mark: data.find((attr) => attr.name === 'mark')?.value || '',
         });
       } else {
+       
         console.error('Invalid attributes data format');
       }
     };

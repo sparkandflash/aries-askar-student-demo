@@ -1,12 +1,24 @@
 import { AgentMessage } from "@aries-framework/core";
 import axios from "axios"
 import type { AxiosResponse } from 'axios'
-/* export const createOobInvitation = (msg:any, agentName?: string, agentImageUrl?: string ): Promise<AxiosResponse> => {
-    return axios.post('http://localhost:5001/oob/create-invitation', {
-      autoAcceptConnection: true,
-      message:msg
+import { message } from '@/studentData'
+
+
+
+export async function makeOobInviteMSg() {
+  try {
+    const response = await axios.post('https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/oob/create-legacy-connectionless-invitation', {
+      domain: "didcomm://aries_connection_invitation",
+      message: message.message,
+      recordId: "eb160fc2-9244-41a4-955a-10ed68964cbb"
     })
+    return  response.data;
+  } catch (error) {
+    console.log('Invitation creation failed:', error);
+    throw error; // Re-throw the error for further handling if needed
   }
+}
+/*
  {
   "domain": "didcomm://aries_connection_invitation?",
   "message": {
@@ -23,8 +35,13 @@ import type { AxiosResponse } from 'axios'
 
 export async function makeInviteMSg(msg: AgentMessage) {
   try {
-    const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/uniCreateInviteMsg`, msg);
-    return response.data;  
+    const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/oob/create-legacy-connectionless-invitation`,
+      {
+        domain: "didcomm://aries_connection_invitation",
+        message: message,
+        recordId: 1
+      });
+    return response.data;
   } catch (error) {
     console.log('Invitation creation failed:', error);
     throw error; // Re-throw the error for further handling if needed
@@ -40,7 +57,7 @@ export async function makeInvite() {
   }
 }
 
-export async function getConnectionId(outOfBandId:string){
+export async function getConnectionId(outOfBandId: string) {
   const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/connections?outOfBandId=${outOfBandId}`);
   return response
 }

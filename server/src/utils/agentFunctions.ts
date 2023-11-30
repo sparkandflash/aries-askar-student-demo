@@ -11,8 +11,10 @@ import {
   BasicMessageEventTypes,
   BasicMessageRole,
   AutoAcceptCredential,
+  Attachment,
 } from '@aries-framework/core'
 import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
+
 
 
 // The startServer function requires an initialized agent and a port.
@@ -48,6 +50,13 @@ console.log(agentmsg)
   return {
     invitationUrl: outOfBandRecord.invitation.toUrl({ domain: url }),
     outOfBandRecord: outOfBandRecord.outOfBandRecord
+  }
+}
+
+export const createNewLegacyNoConnectInvitation = async (agent: Agent, senderConfig:any ) => {
+  const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig)
+  return {
+    invitationUrl: outOfBandRecord.invitationUrl,
   }
 }
 

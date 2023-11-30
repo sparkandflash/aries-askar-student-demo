@@ -27,7 +27,7 @@ function Prof() {
         //TODO:  send this form data to a db first
         let response = issueCredentialOffer(credId, form)
         console.log(response)
-        //move this function to student obtaining the certificate flow, where cerificate details are fetched from db
+        //store the response somewhere
     }
     useEffect(() => {
          getCredId()
