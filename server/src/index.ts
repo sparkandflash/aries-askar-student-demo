@@ -1,7 +1,7 @@
 import { startServer } from '@aries-framework/rest'
 import { initializeAgent } from './baseAgent.js'
 import { createCredOffer, createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
-import { OutOfBandRecord } from '@aries-framework/core'
+import { OutOfBandRecord, RecordNotFoundError } from '@aries-framework/core'
 import type { AgentMessage, WalletConfig } from '@aries-framework/core'
 import type { Express } from 'express'
 import { createExpressServer, useContainer } from 'routing-controllers'
@@ -69,8 +69,10 @@ const run = async () => {
 
   uniApp.get('/sendMsg', async (req, res) => {
     let msg = req.query.msg as string
+    let connectionId = req.query.connectionId as string; // Assuming connectionId is present in the URL
+
     const connectionRecord = await getConnectionRecord(UNIAgent, bandRec || {} as OutOfBandRecord)
-    await UNIAgent.basicMessages.sendMessage(connectionRecord.id, msg);
+    await UNIAgent.basicMessages.sendMessage(connectionId, msg);
     console.log('uni sending msg')
     res.send('uni msg sent')
   })
@@ -83,6 +85,20 @@ const run = async () => {
   uniApp.get('/getCredDefId', async (req, res) => {
     res.send(credDefService.getCredentialDefinitionIdByTag('university-marks-card'))
   })
+
+  uniApp.get('/credAttr', async (req, res) => {
+    let value = req.query.value as string;
+    try {
+      const records = await credDefService.getAllCredentialsByAttribute(value);
+      res.send(JSON.stringify(records));
+    } catch (error) {
+      res.send("error");
+      if (error instanceof RecordNotFoundError) {
+        throw new Error(`credentials for value "${value}" not found.`);
+      }
+      throw new Error(`something went wrong: ${error}`);
+    }
+  });
 
   uniApp.post('/inviteStatus', async (req, res) => {
     res.writeHead(200, {
@@ -99,6 +115,7 @@ const run = async () => {
     port: 5001,
     app: uniApp,
     cors: true,
+  
   })
   console.log('starting uni server')
 }
