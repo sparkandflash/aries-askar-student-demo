@@ -1,8 +1,12 @@
 import type { CredDef, Schema } from 'indy-sdk'
 
-import { Agent, IndySdkError } from '@aries-framework/core'
+import { Agent, CredentialExchangeRecord, CredentialPreviewAttribute, IndySdkError } from '@aries-framework/core'
 import { isIndyError } from '@aries-framework/core/build/utils/indyError.js'
 import { Inject, Service } from 'typedi'
+
+type CredentialExchangeRecordWithAttributes = CredentialExchangeRecord & {
+  credentialAttributes?: CredentialPreviewAttribute[];
+};
 
 @Service()
 export class CredDefService {
@@ -39,6 +43,26 @@ export class CredDefService {
 
     return filtered.map((c) => c.toJSON())
   }
+
+
+
+  public async getAllCredentialsByAttribute(value: string): Promise<CredentialExchangeRecordWithAttributes[]> {
+    const credentialExchangeRecords = await this.agent.credentials.getAll();
+
+    // Filter credentialExchangeRecords based on the specified value
+    const filteredCredentialExchangeRecords = credentialExchangeRecords.filter(
+      (credRecord: CredentialExchangeRecordWithAttributes) => {
+        // Check if credRecord and credRecord.credentialAttributes are defined before accessing values
+        const attributes = credRecord?.credentialAttributes;
+
+        // Check if attributes is an array and contains the specified value
+        return Array.isArray(attributes) && attributes.some((attr) => attr.name === value || attr.value === value);
+      }
+    );
+
+    return filteredCredentialExchangeRecords;
+  }
+
 
   // TODO: these should be auto-created based on the use cases.
   private async init() {

@@ -49,7 +49,7 @@ function stud() {
         }
     }
     useEffect(() => {
-       // const source = new EventSource('https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/inviteStatus')
+       // const source = new EventSource('http://localhost:5001/inviteStatus')
       //  source.onmessage = e => console.log(e.data)
         getCredId()
     }, [])

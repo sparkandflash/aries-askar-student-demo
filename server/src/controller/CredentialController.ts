@@ -25,4 +25,5 @@ export class CredentialController {
       throw new InternalServerError(`something went wrong: ${error}`)
     }
   }
+ 
 }

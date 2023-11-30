@@ -1,17 +1,38 @@
 import {
     FormLabel, Text, HStack, VStack, Input, Button
 } from "@chakra-ui/react"
-import React from "react"
-
+import React, { useEffect, useState } from "react"
+import { getCredDefId, issueCredentialOffer } from '@/pages/api/credApi';
 
 function Prof() {
-    const [form, setForm] = React.useState({ name: '', id: '', course: '', year: '', mark: '' })
+    const [form, setForm] = useState({ name: '', id: '', course: '', year: '', mark: '' })
+    const [credId, setCredId] = useState('')
+    async function getCredId() {
+        let id = await getCredDefId()
+        if (id == "") {
+            setCredId("server not available")
+        }
+        setCredId(JSON.parse(JSON.stringify(id)))
+        console.log(JSON.stringify(id))
+    }
+    const updates = {
+        name: form.name,
+        id: form.id,
+        course: form.course,
+        mark: form.mark,
+        year: form.year,
+    }
 
-    async function upDateCredDB(){
+    async function addNewCerd() {
         //TODO:  send this form data to a db first
-      }
-      
-
+        let response = issueCredentialOffer(credId, form)
+        console.log(response)
+        //move this function to student obtaining the certificate flow, where cerificate details are fetched from db
+    }
+    useEffect(() => {
+         getCredId()
+     }, [])
+ 
     return (
         <VStack marginTop={20} spacing={8} direction='column'>
             <HStack>
@@ -29,13 +50,13 @@ function Prof() {
             </HStack>
             <HStack>
                 <FormLabel width={20}>Year</FormLabel>
-                <Input width={350} onChange={e => setForm({ ...form, id: e.target.value })} placeholder='year' />
+                <Input width={350} onChange={e => setForm({ ...form, year: e.target.value })} placeholder='year' />
             </HStack>
             <HStack>
                 <FormLabel width={20}>TotalMarks</FormLabel>
                 <Input width={350} onChange={e => setForm({ ...form, mark: e.target.value })} placeholder='Mark' />
             </HStack>
-            <Button onClick={upDateCredDB} colorScheme='blue'>Continue</Button>
+            <Button onClick={addNewCerd} colorScheme='blue'>Continue</Button>
 
         </VStack>
     )
