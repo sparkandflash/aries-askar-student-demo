@@ -23,7 +23,7 @@ import type { AxiosResponse } from 'axios'
 
 export async function makeInviteMSg(msg: AgentMessage) {
   try {
-    const response = await axios.post(`http://localhost:5001/uniCreateInviteMsg`, msg);
+    const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/uniCreateInviteMsg`, msg);
     return response.data;  
   } catch (error) {
     console.log('Invitation creation failed:', error);
@@ -32,7 +32,7 @@ export async function makeInviteMSg(msg: AgentMessage) {
 }
 export async function makeInvite() {
   try {
-    const response = await axios.get(`http://localhost:5001/createInvite`);
+    const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/createInvite`);
     return response  //Should return invite url and out of band id
   } catch (error) {
     console.log('Invitation creation failed:', error);
@@ -41,7 +41,7 @@ export async function makeInvite() {
 }
 
 export async function getConnectionId(outOfBandId:string){
-  const response = await axios.get(`http://localhost:5001/connections?outOfBandId=${outOfBandId}`);
+  const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/connections?outOfBandId=${outOfBandId}`);
   return response
 }
 

@@ -4,7 +4,7 @@ import { AgentMessage } from '@aries-framework/core';
 
 export async function getCredDefId() {
     try{
-    let creddefID = await axios.get('http://localhost:5001/getCredDefId')
+    let creddefID = await axios.get('https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/getCredDefId')
     return JSON.parse(JSON.stringify(creddefID.data))
     }
     catch (e)
@@ -15,7 +15,7 @@ export async function getCredDefId() {
 
 export async function issueCredential(credId:string, condId:string, attributeData:Attributes) {
     try {
-      let response:AgentMessage = await axios.post(`http://localhost:5001/credentials/offer-credential`, {
+      let response:AgentMessage = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/offer-credential`, {
             protocolVersion: "v1" || "v2",
             credentialFormats: {
                 indy: {
@@ -43,7 +43,7 @@ export async function issueCredential(credId:string, condId:string, attributeDat
 export async function issueCredentialOffer(credId:string, attributeData:Attributes) {
     try {
    
-       return await axios.post(`http://localhost:5001/credentials/create-offer`, {
+       return await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/create-offer`, {
             protocolVersion: "v1" || "v2",
             credentialFormats: {
                 indy: {
@@ -67,7 +67,9 @@ export async function issueCredentialOffer(credId:string, attributeData:Attribut
 }
 
 export const getDemoCredentialsByConnectionId = async (attrVal: string) => {
-    const response = await axios.get(`http://localhost:5001/credAttr?value=${attrVal}`)
+    const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credAttr?value=${attrVal}`)
     return response
   }
+
+
   

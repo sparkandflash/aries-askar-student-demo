@@ -1,6 +1,6 @@
 import { startServer } from '@aries-framework/rest'
 import { initializeAgent } from './baseAgent.js'
-import { createCredOffer, createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
+import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
 import { OutOfBandRecord, RecordNotFoundError } from '@aries-framework/core'
 import type { AgentMessage, WalletConfig } from '@aries-framework/core'
 import type { Express } from 'express'
@@ -18,9 +18,7 @@ const run = async () => {
     bandRec = outOfBandRecord
   }
 
-
   //uni detail configuration
-
   const uniApp: Express = createExpressServer({
     controllers: ['./controllers/**/*.ts', './controllers/**/*.js'],
     cors: true,
@@ -34,8 +32,13 @@ const run = async () => {
     console.log('We now have an active connection to use in the following tutorials')
   })
 
+  uniApp.use(express.json()); //gives error if this line is removed
+  const credDefService = new CredDefService(UNIAgent)
+  useContainer(Container)
+  Container.set(CredDefService, credDefService)
+  messageListener(UNIAgent, "university")
+
   // ---------SERVER API MAPPINGS-------START
-  // http://localhost:5001/uniCreateInvite?url=http://localhost:5002 to test
   uniApp.get('/uniCreateInvite', async (req, res) => {
     let url = req.query.data as string
     const { outOfBandRecord, invitationUrl } = await createNewInvitation(UNIAgent, url,)
@@ -45,15 +48,15 @@ const run = async () => {
   })
 
   uniApp.get('/createInvite', async (req, res) => {
-    const { outOfBandRecord, invitationUrl } =await createNewLegacyInvitation(UNIAgent, 'didcomm://aries_connection_invitation');
+    const { outOfBandRecord, invitationUrl } = await createNewLegacyInvitation(UNIAgent, 'didcomm://aries_connection_invitation');
     console.log('uni creating legacy invite')
     res.send({
-      url:invitationUrl,
-      id: outOfBandRecord.id})
+      url: invitationUrl,
+      id: outOfBandRecord.id
+    })
     setInviteUrl(invitationUrl, outOfBandRecord)
   })
 
-  uniApp.use(express.json()); //gives error if this line is removed
   uniApp.post('/uniCreateInviteMsg', async (req, res) => {
     try {
       let msg = req.body as AgentMessage;
@@ -70,17 +73,10 @@ const run = async () => {
   uniApp.get('/sendMsg', async (req, res) => {
     let msg = req.query.msg as string
     let connectionId = req.query.connectionId as string; // Assuming connectionId is present in the URL
-
-    const connectionRecord = await getConnectionRecord(UNIAgent, bandRec || {} as OutOfBandRecord)
     await UNIAgent.basicMessages.sendMessage(connectionId, msg);
     console.log('uni sending msg')
     res.send('uni msg sent')
   })
-  messageListener(UNIAgent, "university")
-
-  const credDefService = new CredDefService(UNIAgent)
-  useContainer(Container)
-  Container.set(CredDefService, credDefService)
 
   uniApp.get('/getCredDefId', async (req, res) => {
     res.send(credDefService.getCredentialDefinitionIdByTag('university-marks-card'))
@@ -101,24 +97,36 @@ const run = async () => {
   });
 
   uniApp.post('/inviteStatus', async (req, res) => {
+    //EMIT Event when connection is established
     res.writeHead(200, {
       Connection: "keep-alive",
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
     });
-    
+  });
+
+  uniApp.get('/credMsg', async (req, res) => {
+    let value = req.query.value as string;
+    try {
+      const records = await credDefService.getCredMsg(value);
+      res.send(JSON.stringify(records));
+    } catch (error) {
+      res.send("error");
+      if (error instanceof RecordNotFoundError) {
+        throw new Error(`credentials for value "${value}" not found.`);
+      }
+      throw new Error(`something went wrong: ${error}`);
+    }
   });
   //------SERVER API MAPPINGS-------END
-
 
   await startServer(UNIAgent, {
     port: 5001,
     app: uniApp,
     cors: true,
-  
+
   })
   console.log('starting uni server')
 }
-
 // A Swagger (OpenAPI) definition is exposed on  http://localhost:5001/docs
 run()

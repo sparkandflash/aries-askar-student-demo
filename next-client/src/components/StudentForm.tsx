@@ -1,12 +1,12 @@
 //add student form here
 import React, { useEffect, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react';
-import randomStudentData, { Attributes, Cred, StudentData, inviteValue } from '../studentData'; // Assuming you have a type/interface named StudentData
-
+import randomStudentData, { Attributes, Cred, StudentData } from '../studentData'; // Assuming you have a type/interface named StudentData
+import useAttributes from '../hooks/useAttributes';
 import {
     FormLabel, HStack, VStack, Input, Button, Text, Box
 } from "@chakra-ui/react"
-import { getCredDefId, issueCredential } from '@/pages/api/credApi';
+import { getCredDefId, getDemoCredentialsByConnectionId, issueCredential } from '@/pages/api/credApi';
 import { getConnectionId, makeInvite } from '@/pages/api/connectionAPI';
 function stud() {
     const [rollId, setRollId] = useState<string>('');
@@ -15,20 +15,24 @@ function stud() {
     const [student, setStudent] = useState<StudentData | undefined>()
     const [credDefId, setCredDefId] = useState("")
     const [connId, setConnId] = useState("")
-
+    const { attributes, setAttributesData } = useAttributes();
     const [inviteUrl, setInviteUrl] = useState<string>('');
     async function getCredId() {
         let id = await getCredDefId()
         setCredDefId(id)
     }
 
-    function findStudentByRoll() {
+    async function findStudentByRoll() {
         //replace this with function to fetch the student data from postGres
+        const studentCred = await getDemoCredentialsByConnectionId(rollId)
+        console.log(JSON.stringify(studentCred.data[0].credentialAttributes))
+        setAttributesData(studentCred.data[0].credentialAttributes)
         const foundStudent = randomStudentData.find((student) => student.RollNo.toString() === rollId);
         if (foundStudent) {
             setCredStatus(true)
             setInviteUrl("")
-            setCred(foundStudent.creds)
+           // setCred(foundStudent.creds)
+           setCred(foundStudent.creds)
             setStudent(foundStudent)
         }
         else {
@@ -71,23 +75,10 @@ function stud() {
             <Button onClick={findStudentByRoll} colorScheme='blue'>Continue</Button>
             {credStatus ? <div>
                 <Button onClick={acceptinvite} >connect</Button>
-                <Text>student no: {student ? student.RollNo : 0}</Text>
-                {
-                    cred && cred.map((item: Cred) => {
-
-                        return (
-                            item.attributes && item.attributes.map((item: Attributes) => {
-                                return (
-                                    <Box key={item.name}>
-                                        name:{item.name} | course:{item.course} | id:{item.id} <Button onClick={() => acceptCred(item)}>accept</Button>
+                <Text>student no: {student ? student.RollNo : 0}</Text>  
+                                    <Box>
+                                        name: {attributes.name} | course: {attributes.course} | id: {attributes.id} <Button onClick={() => acceptCred(attributes)}>accept</Button>
                                     </Box>
-                                )
-                            }
-                            )
-                        )
-                    }
-                    )
-                }
             </div> : <div> </div>}
             <Box width="70%"><Text>cred def id: {credDefId}</Text>
                 <Text>invite: {inviteUrl}</Text></Box>
