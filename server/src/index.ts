@@ -1,16 +1,20 @@
 import { startServer } from '@aries-framework/rest'
 import { initializeAgent } from './baseAgent.js'
-import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, createNewLegacyNoConnectInvitation, getConnectionRecord, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
+import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation, messageListener, setupConnectionListener } from './utils/agentFunctions.js'
 import { OutOfBandRecord, RecordNotFoundError } from '@aries-framework/core'
-import type { AgentMessage, WalletConfig } from '@aries-framework/core'
-import type { Express } from 'express'
+import type { WalletConfig } from '@aries-framework/core'
+import type { Express, Request, Response, NextFunction } from 'express'
 import { createExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
 import { CredDefService } from './controller/CredDefService.js'
-import express from 'express'
-import { connect } from 'ngrok'
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { Attributes } from './utils/types.js'
+
+const urlMap: { [shortId: string]: string } = {};
 
 const run = async () => {
+
   let inviteUrl: string
   let bandRec: OutOfBandRecord | undefined;
   function setInviteUrl(url: string, outOfBandRecord: OutOfBandRecord) {
@@ -32,13 +36,15 @@ const run = async () => {
     console.log('We now have an active connection to use in the following tutorials')
   })
 
-  uniApp.use(express.json()); //gives error if this line is removed
+  uniApp.use(express.json()); 
+  //gives error if this line is removed
   const credDefService = new CredDefService(UNIAgent)
   useContainer(Container)
   Container.set(CredDefService, credDefService)
   messageListener(UNIAgent, "university")
 
   // ---------SERVER API MAPPINGS-------START
+
   uniApp.get('/uniCreateInvite', async (req, res) => {
     let url = req.query.data as string
     const { outOfBandRecord, invitationUrl } = await createNewInvitation(UNIAgent, url,)
@@ -57,13 +63,13 @@ const run = async () => {
     setInviteUrl(invitationUrl, outOfBandRecord)
   })
 
-  uniApp.post('/createInviteMsg', async (req, res) => {
+  uniApp.post('/acceptCred', async (req: Request, res: Response) => {
     try {
-      let msg = req.body as AgentMessage;
-      const { invitationUrl } = await createNewLegacyNoConnectInvitation(UNIAgent, {
-       domain: 'didcomm://aries_connection_invitation',
-       messages:msg});
-      console.log('uni creating invite');
+      let data = req.body
+      console.log("ATTRIBUTES RECEVIED: "+ JSON.stringify(data.attributeData))
+     let id = credDefService.getCredentialDefinitionIdByTag('university-marks-card')
+     const { invitationUrl } = await createNewInvitationwithMsg(UNIAgent,id,data.attributeData);
+      //console.log(invitationUrl);
       res.send(invitationUrl);
     } catch (error) {
       console.error('Error creating invitation:', error);
@@ -107,21 +113,41 @@ const run = async () => {
     });
   });
 
-  uniApp.get('/credMsg', async (req, res) => {
-    let value = req.query.value as string;
-    try {
-      const records = await credDefService.getCredMsg(value);
-      res.send(JSON.stringify(records));
-    } catch (error) {
-      res.send("error");
-      if (error instanceof RecordNotFoundError) {
-        throw new Error(`credentials for value "${value}" not found.`);
-      }
-      throw new Error(`something went wrong: ${error}`);
+
+
+  uniApp.use('/ssi', async (req, res) => {
+    let shortId = req.query.id as string;
+    // Check if the short URL exists
+    if (urlMap.hasOwnProperty(shortId)) {
+      const longUrl = urlMap[shortId];
+      res.redirect(301, longUrl); // Redirect with status code 301 (permanent redirect)
+    } else {
+      res.status(404).send('Not Found');
     }
   });
+
+  uniApp.post('/shorten', async (req: Request, res: Response) => {
+    try {
+      // Generate a unique ID for the short URL
+      const shortId = uuidv4().substring(0, 8); // Use the first 8 characters of the UUID
+
+      // Generate the short URL
+      const shortUrl = `https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/ssi?id=${shortId}`;
+
+      // Store the mapping between short and long URLs
+      const longUrl = req.body.longUrl as string;
+      urlMap[shortId] = longUrl;
+
+      // Send the short URL in the response
+      res.json({ shortUrl });
+    } catch (error) {
+      console.error('Error shortening URL:');
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
   //------SERVER API MAPPINGS-------END
-  const endpoint = await connect(5001)
+
   await startServer(UNIAgent, {
     port: 5001,
     app: uniApp,
@@ -132,3 +158,4 @@ const run = async () => {
 }
 // A Swagger (OpenAPI) definition is exposed on  http://localhost:5001/docs
 run()
+

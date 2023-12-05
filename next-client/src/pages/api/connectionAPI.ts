@@ -1,18 +1,17 @@
 import { AgentMessage } from "@aries-framework/core";
 import axios from "axios"
 import type { AxiosResponse } from 'axios'
-import { message } from '@/studentData'
-
-
+import { Attributes, message } from '@/studentData'
 
 export async function makeOobInviteMSg() {
+
   try {
-    const response = await axios.post('https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/oob/create-legacy-connectionless-invitation', {
-      domain: "didcomm://aries_connection_invitation",
-      message: message.message,
-      recordId: "eb160fc2-9244-41a4-955a-10ed68964cbb"
+    const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/oob/create-legacy-connectionless-invitation`, {
+      "recordId": message.id,
+      "message": message.message,
+      "domain": "https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io"
     })
-    return  response.data;
+    return response.data;
   } catch (error) {
     console.log('Invitation creation failed:', error);
     throw error; // Re-throw the error for further handling if needed
@@ -32,21 +31,6 @@ export async function makeOobInviteMSg() {
 }*/
 
 
-
-export async function makeInviteMSg(msg: AgentMessage) {
-  try {
-    const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/oob/create-legacy-connectionless-invitation`,
-      {
-        domain: "didcomm://aries_connection_invitation",
-        message: message,
-        recordId: 1
-      });
-    return response.data;
-  } catch (error) {
-    console.log('Invitation creation failed:', error);
-    throw error; // Re-throw the error for further handling if needed
-  }
-}
 export async function makeInvite() {
   try {
     const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/createInvite`);
@@ -62,4 +46,23 @@ export async function getConnectionId(outOfBandId: string) {
   return response
 }
 
+export async function shortenUrl(longUrl: string): Promise<string | undefined> {
 
+  try {
+    const response = await axios.post("https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/shorten", { longUrl });
+    return response.data.shortUrl;
+  } catch (error) {
+    console.error('Error shortening URL:', error);
+  }
+}
+
+export async function makeInvitationWMSG(attributeData:Attributes) {
+  try {
+    const response = await axios.post("https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/acceptCred", { attributeData })
+    console.log(response.data)
+    return response.data;
+  } catch (error) {
+    //console.log('Invitation creation failed:', error);
+    throw error; // Re-throw the error for further handling if needed
+  }
+}

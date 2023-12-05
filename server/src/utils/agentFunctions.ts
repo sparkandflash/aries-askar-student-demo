@@ -12,8 +12,12 @@ import {
   BasicMessageRole,
   AutoAcceptCredential,
   Attachment,
+
+  OutOfBandInvitation,
 } from '@aries-framework/core'
 import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
+import { CredDefService } from '../controller/CredDefService.js'
+import { Attributes } from './types.js'
 
 
 
@@ -36,29 +40,24 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
   }
 }
 
-export const createNewInvitationwithMsg = async (agent: Agent, url: string, msg: any) => {
-  const agentmsg = new AgentMessage;
-  agentmsg.toJSON(msg)
-console.log(agentmsg)
-  const senderConfig: CreateOutOfBandInvitationConfig = {
-    label: "xyz-university",
-    imageUrl: "https://i.imgur.com/ovIzDCt.jpeg",
-    autoAcceptConnection: true,
-    messages: [agentmsg]
-  }
-  const outOfBandRecord = await agent.oob.createLegacyInvitation(senderConfig)
-  return {
-    invitationUrl: outOfBandRecord.invitation.toUrl({ domain: url }),
-    outOfBandRecord: outOfBandRecord.outOfBandRecord
-  }
-}
+export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr: any) => {
+  console.log(attr);
 
-export const createNewLegacyNoConnectInvitation = async (agent: Agent, senderConfig:any ) => {
-  const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig)
-  return {
-    invitationUrl: outOfBandRecord.invitationUrl,
-  }
-}
+  // Use .then() to ensure createCredOffer is completed before proceeding
+  return await createCredOffer(agent, id, attr).then(async (data) => {
+    console.log(data)
+    const senderConfig = {
+      recordId: data.credentialRecord.id,
+      message: data.message,
+      domain: 'didcomm://aries_connection_invitation'
+    };
+    const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig);
+    return {
+      invitationUrl: outOfBandRecord.invitationUrl
+    };
+  });
+};
+
 
 export const createNewLegacyInvitation = async (agent: Agent, url: string) => {
   const senderConfig: CreateOutOfBandInvitationConfig = {
@@ -83,7 +82,8 @@ export const receiveInvitation = async (agent: Agent, invitationUrl: string) => 
     reuseConnection: true
 
   }
-  const { outOfBandRecord } = await agent.oob.receiveInvitationFromUrl(invitationUrl, reciverConfig)
+  const record: OutOfBandInvitation = await agent.oob.parseInvitationShortUrl(invitationUrl)
+  const { outOfBandRecord } = await agent.oob.receiveInvitation(record, reciverConfig)
   console.log(`out of band id: ` + outOfBandRecord.id)
   return outOfBandRecord
 }
@@ -116,12 +116,13 @@ export async function messageListener(agent: Agent, name: string) {
   agent.events.on(BasicMessageEventTypes.BasicMessageStateChanged, async (event: BasicMessageStateChangedEvent) => {
     if (event.payload.basicMessageRecord.role === BasicMessageRole.Receiver) {
       console.log(`\n${name} received a message: ${event.payload.message.content}\n`)
+
     }
   })
 }
 
 //this function is not used
-export async function createCredOffer(agent: Agent, credId: string, attributeData: { id: string; name: string; course: string; year: string; mark: string }) {
+export async function createCredOffer(agent: Agent, credId: string, attributeData: Attributes) {
   const credFormat: CreateOfferOptions<[IndyCredentialFormat], [V1CredentialService, V2CredentialService<[IndyCredentialFormat]>]> = {
     protocolVersion: 'v1' || 'v2',
     credentialFormats: {
@@ -141,7 +142,7 @@ export async function createCredOffer(agent: Agent, credId: string, attributeDat
   }
 
   const credMsg = await agent.credentials.createOffer(credFormat)
-  return credMsg.message
+  return credMsg
 }
 
 

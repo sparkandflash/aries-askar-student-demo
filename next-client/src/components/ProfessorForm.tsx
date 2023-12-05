@@ -3,9 +3,12 @@ import {
 } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
 import { getCredDefId, issueCredentialOffer } from '@/pages/api/credApi';
+import { makeInvitationWMSG, makeOobInviteMSg } from "@/pages/api/connectionAPI";
+import useAttributes from "@/hooks/useAttributes";
 
 function Prof() {
     const [form, setForm] = useState({ name: '', id: '', course: '', year: '', mark: '' })
+    const { attributes, setAttributesData } = useAttributes();
     const [credId, setCredId] = useState('')
     async function getCredId() {
         let id = await getCredDefId()
@@ -15,18 +18,12 @@ function Prof() {
         setCredId(JSON.parse(JSON.stringify(id)))
         console.log(JSON.stringify(id))
     }
-    const updates = {
-        name: form.name,
-        id: form.id,
-        course: form.course,
-        mark: form.mark,
-        year: form.year,
-    }
 
     async function addNewCerd() {
         //TODO:  send this form data to a db first
-        let response = issueCredentialOffer(credId, form)
+        let response = await makeInvitationWMSG(form)
         console.log(response)
+   
         //store the response somewhere
     }
     useEffect(() => {

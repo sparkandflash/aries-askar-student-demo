@@ -1,14 +1,15 @@
 //add student form here
 import React, { useEffect, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react';
-import randomStudentData, { Attributes, Cred, StudentData } from '../studentData'; // Assuming you have a type/interface named StudentData
+import randomStudentData, { Attributes, Cred, StudentData, url } from '../studentData'; // Assuming you have a type/interface named StudentData
 import useAttributes from '../hooks/useAttributes';
 import {
     FormLabel, HStack, VStack, Input, Button, Text, Box, FormControl,
 } from "@chakra-ui/react"
 
-import { getCredDefId, getDemoCredentialsByConnectionId, issueCredential } from '@/pages/api/credApi';
-import { getConnectionId, makeInvite, makeOobInviteMSg } from '@/pages/api/connectionAPI';
+import { getCredDefId, getCredDetails, issueCredential } from '@/pages/api/credApi';
+import { getConnectionId, makeInvitationWMSG, makeInvite, makeOobInviteMSg, shortenUrl } from '@/pages/api/connectionAPI';
+import { ConnectionInvitationMessage } from '@aries-framework/core';
 function stud() {
     const [rollId, setRollId] = useState<string>('');
     const [credStatus, setCredStatus] = useState(false)
@@ -22,11 +23,10 @@ function stud() {
         let id = await getCredDefId()
         setCredDefId(id)
     }
-
     async function findStudentByRoll() {
         //replace this with function to fetch the student data from postGres
         if (rollId != "") {
-            const studentCred = await getDemoCredentialsByConnectionId(rollId)
+            const studentCred = await getCredDetails(rollId)
             console.log(studentCred.data.length)
             if (studentCred.data.length > 0) {
                 setAttributesData(studentCred.data[0].credentialAttributes)
@@ -42,11 +42,11 @@ function stud() {
     async function acceptinvite() {
         //function to return with invite url- sent into a qr code pop up
         try {
-            await  makeInvite().then(async (response: any) => {
-               setInviteUrl(response.data.url)
-          
-                console.log(JSON.stringify(response.invitationUrl))
-               // setConnId(response.data.id)
+            await makeInvite().then(async (response: any) => {
+                setInviteUrl(response.data.url)
+
+                console.log(JSON.stringify(response.data.url))
+                setConnId(response.data.id)
             });
         } catch (error) {
             console.error("Error accepting invite:", error);
@@ -58,25 +58,29 @@ function stud() {
         getCredId()
     }, [])
 
-    async function acceptCred(attr:Attributes) {
+    async function acceptCred(attr: Attributes) {
         try {
-            await  makeOobInviteMSg().then(async (response: any) => {
-               setInviteUrl(response.invitationUrl)
-          
-                console.log(JSON.stringify(response.invitationUrl))
-               // setConnId(response.data.id)
-            });
+        //   await makeInvitationWMSG(attr)
+        //    await makeOobInviteMSg().then(async (response: any) => {  
+                const urlS = await shortenUrl(url.replace(/d_m=/, 'c_i='))
+               if (urlS != undefined) {
+                   console.log(urlS)
+                    setInviteUrl(urlS)
+                }
+           // });
         } catch (error) {
             console.error("Error accepting invite:", error);
         }
     }
 
+    
+
     return (
         <VStack marginTop={30} spacing={5} direction='column'>
-            {inviteUrl ? 
-            <div><QRCodeCanvas size={600}  value={inviteUrl} /> <br />
-                <Box width="70%"> <Text>invite: {inviteUrl}</Text> </Box>
-            </div> : <div></div>}
+            {inviteUrl ?
+                <div><QRCodeCanvas size={600} value={inviteUrl} /> <br />
+                    <Box width="70%"> <Text>invite: {inviteUrl}</Text> </Box>
+                </div> : <div></div>}
             <HStack>
                 <FormControl isRequired={true}>
                     <FormLabel width={20}>RollNo</FormLabel>

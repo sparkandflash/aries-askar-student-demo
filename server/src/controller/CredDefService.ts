@@ -44,10 +44,6 @@ export class CredDefService {
     return filtered.map((c) => c.toJSON())
   }
 
-  public async getCredMsg(id: string) {
-    const credentialMsg = await this.agent.credentials.findCredentialMessage(id)
-    return credentialMsg
-  }
 
   public async getAllCredentialsByAttribute(value: string): Promise<CredentialExchangeRecordWithAttributes[]> {
     const credentialExchangeRecords = await this.agent.credentials.getAll();

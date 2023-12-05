@@ -6,11 +6,12 @@ import {
   Agent,
   LogLevel,
   HttpOutboundTransport,
+  AutoAcceptCredential,
+  AutoAcceptProof,
 } from '@aries-framework/core'
 import { agentDependencies, HttpInboundTransport } from '@aries-framework/node'
 import type { InitConfig, WalletConfig, } from '@aries-framework/core'
 import { TestLogger } from './utils/logger.js'
-import { connect } from 'ngrok'
 import { BCOVRIN_TEST_GENESIS } from './utils/utils.js'
 // The startServer function requires an initialized agent and a port.
 // An example of how to setup an agent is located in the `samples` directory.
@@ -28,7 +29,7 @@ process.on('unhandledRejection', (error) => {
 
 
 export async function initializeAgent(label:string, wConfig:WalletConfig, portNum:number, didSeed:string | undefined){
-  const endpoint = await connect(5003)
+  //const endpoint = await connect(portNum)
   const config: InitConfig = {
     label: label,
     walletConfig: wConfig,
@@ -40,10 +41,13 @@ export async function initializeAgent(label:string, wConfig:WalletConfig, portNu
         isProduction: false,
       },
     ],
-    //endpoints: ['https://5003-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io'], 
-    endpoints:[endpoint],
+    endpoints: ['https://'+portNum+'-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io'], 
+   // endpoints:[endpoint],
     logger: logger,
     autoAcceptConnections: true,
+    autoAcceptCredentials:AutoAcceptCredential.Always,
+    autoAcceptProofs: AutoAcceptProof.Always,
+    useLegacyDidSovPrefix: true,
     publicDidSeed: didSeed,
     connectionImageUrl: 'https://i.imgur.com/g3abcCO.png',
   }

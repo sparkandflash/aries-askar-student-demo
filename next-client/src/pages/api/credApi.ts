@@ -16,7 +16,7 @@ export async function getCredDefId() {
 export async function issueCredential(credId:string, condId:string, attributeData:Attributes) {
     try {
       let response:AgentMessage = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/offer-credential`, {
-            protocolVersion: "v1" || "v2",
+            protocolVersion:  "v2",
             credentialFormats: {
                 indy: {
                     credentialDefinitionId: credId,
@@ -58,16 +58,17 @@ export async function issueCredentialOffer(credId:string, attributeData:Attribut
                 }
             },
             autoAcceptCredential: "always",
+            comment: "some comment",
 
         }) 
-        return response.data
+        return response.data.message
     }
     catch (e) {
         console.log("credential issue failed")
     }
 }
 
-export const getDemoCredentialsByConnectionId = async (attrVal: string) => {
+export const getCredDetails = async (attrVal: string) => {
     const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credAttr?value=${attrVal}`)
     return response
   }
