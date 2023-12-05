@@ -1,7 +1,6 @@
 ## server details
 
 - express typescript server using js aries rest extenstion
-- can run two agents- student and university agent
 - has a template for running more agents
 - has both inbuilt rest extension APIs and constructed express app APIs (prefer to use either depending on function)
 - server set up and starting details are in the main README file.

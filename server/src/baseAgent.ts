@@ -8,6 +8,7 @@ import {
   HttpOutboundTransport,
   AutoAcceptCredential,
   AutoAcceptProof,
+  WsOutboundTransport,
 } from '@aries-framework/core'
 import { agentDependencies, HttpInboundTransport } from '@aries-framework/node'
 import type { InitConfig, WalletConfig, } from '@aries-framework/core'
@@ -45,7 +46,7 @@ export async function initializeAgent(label:string, wConfig:WalletConfig, portNu
    // endpoints:[endpoint],
     logger: logger,
     autoAcceptConnections: true,
-    autoAcceptCredentials:AutoAcceptCredential.Always,
+    autoAcceptCredentials:AutoAcceptCredential.ContentApproved,
     autoAcceptProofs: AutoAcceptProof.Always,
     useLegacyDidSovPrefix: true,
     publicDidSeed: didSeed,
@@ -55,6 +56,8 @@ export async function initializeAgent(label:string, wConfig:WalletConfig, portNu
     config, agentDependencies)
   agent.registerInboundTransport(new HttpInboundTransport({ port: portNum }))
   agent.registerOutboundTransport(new HttpOutboundTransport())
+  agent.registerOutboundTransport(new WsOutboundTransport())
+  
   await agent.initialize()
   return agent
 }

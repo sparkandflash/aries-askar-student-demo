@@ -22,6 +22,7 @@ function Prof() {
     async function addNewCerd() {
         //TODO:  send this form data to a db first
         let response = await makeInvitationWMSG(form)
+        
         console.log(response)
    
         //store the response somewhere

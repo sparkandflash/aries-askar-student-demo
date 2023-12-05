@@ -135,10 +135,10 @@ export async function createCredOffer(agent: Agent, credId: string, attributeDat
           { name: 'year', value: attributeData.year },
           { name: 'mark', value: attributeData.mark },
         ]
-      }
-
+        
+      },
     },
-    autoAcceptCredential: AutoAcceptCredential.Always
+    
   }
 
   const credMsg = await agent.credentials.createOffer(credFormat)
