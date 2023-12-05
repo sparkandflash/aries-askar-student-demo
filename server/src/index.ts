@@ -9,7 +9,7 @@ import { Container } from 'typedi'
 import { CredDefService } from './controller/CredDefService.js'
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Attributes } from './utils/types.js'
+import { connect } from 'ngrok'
 
 const urlMap: { [shortId: string]: string } = {};
 
@@ -31,7 +31,7 @@ const run = async () => {
     id: 'uni-wallet',
     key: 'demoagentacme0000000000000000000'
   }
-  const UNIAgent = await initializeAgent("uni", uniWConfig, 5003, `testtesttesttesttesttesttesttest`)
+  const UNIAgent = await initializeAgent("uni", uniWConfig, 5006, `testtesttesttesttesttesttesttest`)
   setupConnectionListener(UNIAgent, bandRec || {} as OutOfBandRecord, () => {
     console.log('We now have an active connection to use in the following tutorials')
   })
@@ -132,7 +132,7 @@ const run = async () => {
       const shortId = uuidv4().substring(0, 8); // Use the first 8 characters of the UUID
 
       // Generate the short URL
-      const shortUrl = `https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/ssi?id=${shortId}`;
+      const shortUrl = endpoint+`/ssi?id=${shortId}`;
 
       // Store the mapping between short and long URLs
       const longUrl = req.body.longUrl as string;
@@ -147,7 +147,7 @@ const run = async () => {
   });
 
   //------SERVER API MAPPINGS-------END
-
+  const endpoint = await connect(5001)
   await startServer(UNIAgent, {
     port: 5001,
     app: uniApp,

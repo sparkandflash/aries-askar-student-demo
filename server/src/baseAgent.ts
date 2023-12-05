@@ -14,6 +14,8 @@ import { agentDependencies, HttpInboundTransport } from '@aries-framework/node'
 import type { InitConfig, WalletConfig, } from '@aries-framework/core'
 import { TestLogger } from './utils/logger.js'
 import { BCOVRIN_TEST_GENESIS } from './utils/utils.js'
+import { connect } from 'ngrok'
+
 // The startServer function requires an initialized agent and a port.
 // An example of how to setup an agent is located in the `samples` directory.
 const logger = new TestLogger(process.env.NODE_ENV ? LogLevel.error : LogLevel.debug)
@@ -29,8 +31,8 @@ process.on('unhandledRejection', (error) => {
 })
 
 
-export async function initializeAgent(label:string, wConfig:WalletConfig, portNum:number, didSeed:string | undefined){
-  //const endpoint = await connect(portNum)
+export async function initializeAgent(label: string, wConfig: WalletConfig, portNum: number, didSeed: string | undefined) {
+ const endpoint = await connect(portNum)
   const config: InitConfig = {
     label: label,
     walletConfig: wConfig,
@@ -42,11 +44,11 @@ export async function initializeAgent(label:string, wConfig:WalletConfig, portNu
         isProduction: false,
       },
     ],
-    endpoints: ['https://'+portNum+'-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io'], 
-   // endpoints:[endpoint],
+    //endpoints: ['https://'+portNum+'-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io'], 
+    endpoints: [endpoint],
     logger: logger,
     autoAcceptConnections: true,
-    autoAcceptCredentials:AutoAcceptCredential.ContentApproved,
+    autoAcceptCredentials: AutoAcceptCredential.ContentApproved,
     autoAcceptProofs: AutoAcceptProof.Always,
     useLegacyDidSovPrefix: true,
     publicDidSeed: didSeed,
@@ -57,7 +59,7 @@ export async function initializeAgent(label:string, wConfig:WalletConfig, portNu
   agent.registerInboundTransport(new HttpInboundTransport({ port: portNum }))
   agent.registerOutboundTransport(new HttpOutboundTransport())
   agent.registerOutboundTransport(new WsOutboundTransport())
-  
+
   await agent.initialize()
   return agent
 }

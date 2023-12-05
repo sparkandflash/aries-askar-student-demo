@@ -1,22 +1,21 @@
-import { Attributes, inviteValue } from "@/studentData"
-import axios from "axios"
+import { Attributes } from "@/studentData"
 import { AgentMessage } from '@aries-framework/core';
+import { apiCall } from './BaseUrl'
 
 export async function getCredDefId() {
-    try{
-    let creddefID = await axios.get('https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/getCredDefId')
-    return JSON.parse(JSON.stringify(creddefID.data))
+    try {
+        let creddefID = await apiCall.get('/getCredDefId')
+        return JSON.parse(JSON.stringify(creddefID.data))
     }
-    catch (e)
-    {
+    catch (e) {
         return "id not found"
     }
 }
 
-export async function issueCredential(credId:string, condId:string, attributeData:Attributes) {
+export async function issueCredential(credId: string, condId: string, attributeData: Attributes) {
     try {
-      let response:AgentMessage = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/offer-credential`, {
-            protocolVersion:  "v2",
+        let response: AgentMessage = await apiCall.post(`/credentials/offer-credential`, {
+            protocolVersion: "v2",
             credentialFormats: {
                 indy: {
                     credentialDefinitionId: credId,
@@ -30,9 +29,9 @@ export async function issueCredential(credId:string, condId:string, attributeDat
                 }
             },
             autoAcceptCredential: "always",
-            connectionId:condId
+            connectionId: condId
 
-        }) 
+        })
         return response
     }
     catch (e) {
@@ -40,10 +39,10 @@ export async function issueCredential(credId:string, condId:string, attributeDat
     }
 }
 
-export async function issueCredentialOffer(credId:string, attributeData:Attributes) {
+export async function issueCredentialOffer(credId: string, attributeData: Attributes) {
     try {
-   
-      const response = await axios.post(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credentials/create-offer`, {
+
+        const response = await apiCall.post(`/credentials/create-offer`, {
             protocolVersion: "v1" || "v2",
             credentialFormats: {
                 indy: {
@@ -60,7 +59,7 @@ export async function issueCredentialOffer(credId:string, attributeData:Attribut
             autoAcceptCredential: "always",
             comment: "some comment",
 
-        }) 
+        })
         return response.data.message
     }
     catch (e) {
@@ -69,9 +68,9 @@ export async function issueCredentialOffer(credId:string, attributeData:Attribut
 }
 
 export const getCredDetails = async (attrVal: string) => {
-    const response = await axios.get(`https://5001-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io/credAttr?value=${attrVal}`)
+    const response = await apiCall.get(`/credAttr?value=${attrVal}`)
     return response
-  }
+}
 
 
-  
+
