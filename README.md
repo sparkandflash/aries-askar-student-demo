@@ -20,9 +20,10 @@
 
 ### server and client start up commands
 ```
-        yarn client - starts the front end client
+        yarn client - starts the front end nextjs client
         yarn server - starts the university, the issuing agent server
         yarn dev - start developmental server
+        yarn test - start the test agent server
 ```
 
 - localhost:5001 - university server
