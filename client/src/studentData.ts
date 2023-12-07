@@ -56,7 +56,7 @@ const randomStudentData: StudentData[] = [
     // Add more students as needed
 ];
 
-export const url = "https://1f37-103-171-58-102.ngrok-free.app/ssi?id=0ee493ba"
+export const url = "https://ba20-103-171-58-102.ngrok-free.app/ssi?id=c8cf615e"
 
 export const message = {
     "id":"80bb0a2b-3bea-4fb2-957e-f52a461d139d",

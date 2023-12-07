@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon --esm src/index.ts",
     "start": "ts-node --esm src/index.ts",
-    "test": "ts-node --esm src/studentIndex.ts",
+    "test": "ts-node --esm src/test-index.ts",
     "build": "rm -rf build && tsc"
   },
   "keywords": [],

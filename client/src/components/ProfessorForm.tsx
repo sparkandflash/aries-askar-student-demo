@@ -3,7 +3,7 @@ import {
 } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
 import { getCredDefId, issueCredentialOffer } from '@/pages/api/credApi';
-import { makeInvitationWMSG, makeOobInviteMSg } from "@/pages/api/connectionAPI";
+import { makeInvitationWMSG, makeOobInviteMSg, shortenUrl } from "@/pages/api/connectionAPI";
 import useAttributes from "@/hooks/useAttributes";
 
 function Prof() {
@@ -22,15 +22,14 @@ function Prof() {
     async function addNewCerd() {
         //TODO:  send this form data to a db first
         let response = await makeInvitationWMSG(form)
-        
-        console.log(response)
-   
+        const url = await shortenUrl(response)
+        console.log(url)
         //store the response somewhere
     }
     useEffect(() => {
-         getCredId()
-     }, [])
- 
+        getCredId()
+    }, [])
+
     return (
         <VStack marginTop={20} spacing={8} direction='column'>
             <HStack>

@@ -9,6 +9,7 @@ import {
   AutoAcceptCredential,
   AutoAcceptProof,
   WsOutboundTransport,
+  ConnectionInvitationMessage,
 } from '@aries-framework/core'
 import { agentDependencies, HttpInboundTransport } from '@aries-framework/node'
 import type { InitConfig, WalletConfig, } from '@aries-framework/core'
@@ -56,7 +57,22 @@ export async function initializeAgent(label: string, wConfig: WalletConfig, port
   }
   const agent = new Agent(
     config, agentDependencies)
-  agent.registerInboundTransport(new HttpInboundTransport({ port: portNum }))
+
+  const httpInbound = new HttpInboundTransport({
+    port: portNum,
+  })
+  httpInbound.app.get('/', async (req, res) => {
+    if (typeof req.query.c_i === 'string') {
+      try {
+        const invitation = await ConnectionInvitationMessage.fromUrl(req.url.replace('d_m=', 'c_i='))
+        res.send(invitation.toJSON())
+      } catch (error) {
+        res.status(500)
+        res.send({ detail: 'Unknown error occurred' })
+      }
+    }
+  })
+  agent.registerInboundTransport(httpInbound)
   agent.registerOutboundTransport(new HttpOutboundTransport())
   agent.registerOutboundTransport(new WsOutboundTransport())
 

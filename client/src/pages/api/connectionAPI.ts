@@ -44,3 +44,21 @@ export async function makeInvitationWMSG(attributeData:Attributes) {
     throw error; // Re-throw the error for further handling if needed
   }
 }
+
+export async function shortenUrl(longUrl: string): Promise<string | undefined> {
+
+  try {
+    const response = await apiCall.post('/shorten', { longUrl });
+    return response.data.shortUrl;
+  } catch (error) {
+    console.error('Error shortening URL:', error);
+  }
+}
+
+export async function clearData() {
+  try {
+    const response = await apiCall.get('/cleanup');
+  } catch (error) {
+    console.error('Error cleaning data:', error);
+  }
+}
