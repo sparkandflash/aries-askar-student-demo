@@ -34,16 +34,6 @@ export async function getConnectionId(outOfBandId: string) {
   return response
 }
 
-export async function shortenUrl(longUrl: string): Promise<string | undefined> {
-
-  try {
-    const response = await apiCall.post("/shorten", { longUrl });
-    return response.data.shortUrl;
-  } catch (error) {
-    console.error('Error shortening URL:', error);
-  }
-}
-
 export async function makeInvitationWMSG(attributeData:Attributes) {
   try {
     const response = await apiCall.post("/acceptCred", { attributeData })

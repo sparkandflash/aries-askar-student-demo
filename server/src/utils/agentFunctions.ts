@@ -16,7 +16,6 @@ import {
   OutOfBandInvitation,
 } from '@aries-framework/core'
 import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
-import { CredDefService } from '../controller/CredDefService.js'
 import { Attributes } from './types.js'
 
 // The startServer function requires an initialized agent and a port.
@@ -35,20 +34,19 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
   }
 }
 
-export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr: any) => {
+export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr: any, url: string) => {
   console.log(attr);
 
   return await createCredOffer(agent, id, attr).then(async (data) => {
     console.log(data)
     const senderConfig = {
-      label: "xyz-university",
-      imageUrl: "https://i.imgur.com/ovIzDCt.jpeg",
-      autoAcceptConnection: true,
-      messages: [data.message]
+      recordId: id,
+      message: data.message,
+      domain: url
     };
-    const outOfBandRecord = await agent.oob.createInvitation(senderConfig);
+    const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig);
     return {
-      invitationUrl: outOfBandRecord.outOfBandInvitation.toUrl({ domain: 'didcomm://aries_connection_invitation' }),
+      invitationUrl: outOfBandRecord.invitationUrl,
     };
   });
 };

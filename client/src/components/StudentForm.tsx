@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react"
 
 import { getCredDefId, getCredDetails, issueCredential } from '@/pages/api/credApi';
-import { getConnectionId, makeInvitationWMSG, makeInvite, makeOobInviteMSg, shortenUrl } from '@/pages/api/connectionAPI';
+import { getConnectionId, makeInvitationWMSG, makeInvite, makeOobInviteMSg } from '@/pages/api/connectionAPI';
 import { ConnectionInvitationMessage } from '@aries-framework/core';
 function stud() {
     const [rollId, setRollId] = useState<string>('');
@@ -61,12 +61,8 @@ function stud() {
     async function acceptCred(attr: Attributes) {
         try {
         //   await makeInvitationWMSG(attr)
-        //    await makeOobInviteMSg().then(async (response: any) => {  
-                const urlS = await shortenUrl(url.replace(/oob=/, 'c_i='))
-               if (urlS != undefined) {
-                   console.log(urlS)
-                    setInviteUrl(urlS)
-                }
+        //    await makeOobInviteMSg().then(async (response: any) => {     
+                    setInviteUrl(url)
            // });
         } catch (error) {
             console.error("Error accepting invite:", error);
