@@ -19,13 +19,8 @@ import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOffer
 import { CredDefService } from '../controller/CredDefService.js'
 import { Attributes } from './types.js'
 
-
-
 // The startServer function requires an initialized agent and a port.
 // An example of how to setup an agent is located in the `samples` directory.
-
-
-
 
 export const createNewInvitation = async (agent: Agent, url: string) => {
   const senderConfig: CreateOutOfBandInvitationConfig = {
@@ -43,17 +38,17 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
 export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr: any) => {
   console.log(attr);
 
-  // Use .then() to ensure createCredOffer is completed before proceeding
   return await createCredOffer(agent, id, attr).then(async (data) => {
     console.log(data)
     const senderConfig = {
-      recordId: data.credentialRecord.id,
-      message: data.message,
-      domain: 'didcomm://aries_connection_invitation'
+      label: "xyz-university",
+      imageUrl: "https://i.imgur.com/ovIzDCt.jpeg",
+      autoAcceptConnection: true,
+      messages: [data.message]
     };
-    const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig);
+    const outOfBandRecord = await agent.oob.createInvitation(senderConfig);
     return {
-      invitationUrl: outOfBandRecord.invitationUrl
+      invitationUrl: outOfBandRecord.outOfBandInvitation.toUrl({ domain: 'didcomm://aries_connection_invitation' }),
     };
   });
 };
@@ -135,10 +130,10 @@ export async function createCredOffer(agent: Agent, credId: string, attributeDat
           { name: 'year', value: attributeData.year },
           { name: 'mark', value: attributeData.mark },
         ]
-        
+
       },
     },
-    
+
   }
 
   const credMsg = await agent.credentials.createOffer(credFormat)

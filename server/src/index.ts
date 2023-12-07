@@ -79,7 +79,7 @@ const run = async () => {
 
   uniApp.get('/sendMsg', async (req, res) => {
     let msg = req.query.msg as string
-    let connectionId = req.query.connectionId as string; // Assuming connectionId is present in the URL
+    let connectionId = req.query.connectionId as string; 
 
     await UNIAgent.basicMessages.sendMessage(connectionId, msg);
     console.log('uni sending msg')

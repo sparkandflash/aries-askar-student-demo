@@ -62,7 +62,7 @@ function stud() {
         try {
         //   await makeInvitationWMSG(attr)
         //    await makeOobInviteMSg().then(async (response: any) => {  
-                const urlS = await shortenUrl(url.replace(/d_m=/, 'c_i='))
+                const urlS = await shortenUrl(url.replace(/oob=/, 'c_i='))
                if (urlS != undefined) {
                    console.log(urlS)
                     setInviteUrl(urlS)
