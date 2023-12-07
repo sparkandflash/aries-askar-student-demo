@@ -26,8 +26,11 @@
         yarn test - start the test agent server
 ```
 
-- localhost:5001 - university server
-- localhost:5003 - university agent endPoint 
+- localhost:3000 - front end client
+- localhost:3001 - university agent endpoint | or use startNgrok 
+- localhost:3002 - university agent server | or use startNgrok 
+- localhost:3003 - test agent server
+- localhost:3004 - test agent endpoint
 - replace the localhost with the name of the hosting service for the uni agent
 
 
