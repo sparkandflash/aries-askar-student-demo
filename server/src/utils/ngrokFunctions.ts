@@ -5,7 +5,7 @@ export const startNgrok = async (portNum:number): Promise<string> => {
   try {
     // Configure Ngrok options
     const ngrokOptions = {
-      authtoken: '',
+      authtoken: '',//replace it with your own token
       addr: portNum
     };
 
