@@ -17,8 +17,6 @@ import { TestLogger } from './logger.js'
 import { BCOVRIN_TEST_GENESIS } from './utils.js'
 import { startNgrok } from './ngrokFunctions.js'
 
-// The startServer function requires an initialized agent and a port.
-// An example of how to setup an agent is located in the `samples` directory.
 const logger = new TestLogger(process.env.NODE_ENV ? LogLevel.error : LogLevel.debug)
 //logger copied from animo demo
 process.on('unhandledRejection', (error) => {

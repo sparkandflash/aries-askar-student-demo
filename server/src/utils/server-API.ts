@@ -1,9 +1,8 @@
 import { createExpressServer, useContainer } from "routing-controllers";
 import type { Express, Request, Response } from 'express'
 import express from "express";
-import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation } from "./agentFunctions.js";
+import { AgentCleanup, createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation } from "./agentFunctions.js";
 import { Agent, RecordNotFoundError } from "@aries-framework/core";
-import { AgentCleanup } from "./AgentCleanup.js";
 import { Container } from 'typedi'
 import { v4 as uuidv4 } from 'uuid';
 import { CredDefService } from "../controller/CredDefService.js";

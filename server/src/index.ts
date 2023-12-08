@@ -10,8 +10,9 @@ const run = async () => {
   //university agent configuration
   const config: WalletConfig = {
     id: 'uni-wallet',
-    key: 'demoagentacme0000000000000000000'
+    key: 'demoagentacme0000000000000000000',
   }
+  
   const UNIAgent = await initializeAgent("university-Agent", config, 3001, `testtesttesttesttesttesttesttest`)
   messageListener(UNIAgent, "university")
 
