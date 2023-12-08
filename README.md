@@ -12,7 +12,7 @@
 - POST `/shorten` - retuns a shoterned URL, it takes the long invitation url as the body.
 - GET `/cleanUp` - clears all connection, credential, proofs data.
 
-- test agent has `/sendMsg?msg=`, `/cleanUp`, and `/accept?data=` that accepts invitaions from other agents. 
+- test agent has `/sendMsg?msg=`, `/cleanUp`, and `/accept?data=` that accepts invitations from other agents. 
 ### setting up
 - `nvm use` 
 - uses node 18
