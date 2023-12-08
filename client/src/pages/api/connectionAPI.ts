@@ -1,6 +1,3 @@
-import { AgentMessage } from "@aries-framework/core";
-import axios from "axios"
-import type { AxiosResponse } from 'axios'
 import { Attributes, message } from '@/studentData'
 import { apiCall } from './BaseUrl'
 

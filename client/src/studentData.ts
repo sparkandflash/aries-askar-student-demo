@@ -1,4 +1,3 @@
-import { AgentMessage } from "@aries-framework/core";
 
 export interface Attributes {
     name: string;
@@ -6,10 +5,6 @@ export interface Attributes {
     course: string;
     year: string;
     mark: string;
-}
-export interface inviteValue {
-    url: string;
-    agentMsg: AgentMessage
 }
 export interface Cred {
     attributes: Attributes[];
