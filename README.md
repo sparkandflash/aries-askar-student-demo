@@ -1,6 +1,6 @@
 
 ## details
-- uses aries-js frame work rest extension, with swagger ui. along with an express server
+- uses [aries-js frame work rest extension](https://github.com/openwallet-foundation/agent-framework-javascript-ext.git), with swagger ui. along with an express server
 ### available APIs
 - university agent:
 - GET `/uniCreateInvite?data=` - uses createInvitation(), requires url to be given, returns invite URL.
