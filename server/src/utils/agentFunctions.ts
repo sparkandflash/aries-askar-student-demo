@@ -11,7 +11,7 @@ import {
   BasicMessageRole,
   OutOfBandInvitation,
 } from '@aries-framework/core'
-import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
+import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent,  AgentMessage } from '@aries-framework/core'
 import { Attributes } from './types.js'
 
 
@@ -64,7 +64,7 @@ export const receiveInvitation = async (agent: Agent, invitationUrl: string) => 
     autoAcceptConnection: true,
     reuseConnection: true
   }
-  const record: OutOfBandInvitation = await agent.oob.parseInvitationShortUrl(invitationUrl)
+  const record: OutOfBandInvitation = await agent.oob. parseInvitation(invitationUrl)
   const { outOfBandRecord } = await agent.oob.receiveInvitation(record, reciverConfig)
   console.log(`out of band id: ` + outOfBandRecord.id)
   return outOfBandRecord
@@ -103,10 +103,10 @@ export async function messageListener(agent: Agent, name: string) {
   })
 }
 
+
 export async function createCredOffer(agent: Agent, credId: string, attributeData: Attributes) {
-  const credFormat: CreateOfferOptions<[IndyCredentialFormat], [V1CredentialService, V2CredentialService<[IndyCredentialFormat]>]> = {
-    protocolVersion: 'v1' || 'v2',
-    credentialFormats: {
+
+  const credFormat = {
       indy: {
         credentialDefinitionId: credId,
         attributes: [
@@ -115,15 +115,16 @@ export async function createCredOffer(agent: Agent, credId: string, attributeDat
           { name: 'course', value: attributeData.course },
           { name: 'year', value: attributeData.year },
           { name: 'mark', value: attributeData.mark },
-        ]
+        ],
       },
-    },
-  }
-
-  const credMsg = await agent.credentials.createOffer(credFormat)
-  return credMsg
+    }
+//as any - this was suggested by chatGPT
+  const credMsg = await (agent.credentials as any).createOffer({
+    protocolVersion:'v2',
+    credentialFormat: credFormat,
+  });
+  return credMsg;
 }
-
 
 export const AgentCleanup = async (agent: Agent) => {
     console.log('Starting cleanup')

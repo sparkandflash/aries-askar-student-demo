@@ -1,7 +1,14 @@
 //template to be reused for making multiple agents
 // takes agent name, wallet configuartion details, port number, public did seeds as input
 
-
+import { AskarModule } from '@aries-framework/askar'
+import * as core from '@aries-framework/core'
+import { anoncreds } from '@hyperledger/anoncreds-nodejs'
+import { indyVdr } from '@hyperledger/indy-vdr-nodejs'
+import { AnonCredsCredentialFormatService, AnonCredsModule, LegacyIndyCredentialFormatService } from '@aries-framework/anoncreds'
+import { IndyVdrAnonCredsRegistry, IndyVdrIndyDidRegistrar, IndyVdrIndyDidResolver, IndyVdrModule } from '@aries-framework/indy-vdr'
+import { AnonCredsRsModule } from '@aries-framework/anoncreds-rs'
+import { ariesAskar } from '@hyperledger/aries-askar-nodejs'
 import {
   Agent,
   LogLevel,
@@ -10,6 +17,8 @@ import {
   AutoAcceptProof,
   WsOutboundTransport,
   ConnectionInvitationMessage,
+  DidsModule,
+  V2CredentialProtocol,
 } from '@aries-framework/core'
 import { agentDependencies, HttpInboundTransport } from '@aries-framework/node'
 import type { InitConfig, WalletConfig, } from '@aries-framework/core'
@@ -35,26 +44,48 @@ export async function initializeAgent(label: string, wConfig: WalletConfig, port
   const config: InitConfig = {
     label: label,
     walletConfig: wConfig,
-
-    indyLedgers: [
-      {
-        id: 'BCOVRIN_TEST_GENESIS',
-        genesisTransactions: BCOVRIN_TEST_GENESIS,
-        isProduction: false,
-      },
-    ],
     //endpoints: ['https://'+portNum+'-sparkandfla-ariesaskars-qir1v1kkakh.ws-us106.gitpod.io'], 
     endpoints: [endpoint],
     logger: logger,
-    autoAcceptConnections: true,
-    autoAcceptCredentials: AutoAcceptCredential.ContentApproved,
-    autoAcceptProofs: AutoAcceptProof.Always,
-    useLegacyDidSovPrefix: true,
-    publicDidSeed: didSeed,
     connectionImageUrl: 'https://i.imgur.com/g3abcCO.png',
   }
-  const agent = new Agent(
-    config, agentDependencies)
+
+  const agent = new core.Agent({
+    config,
+    dependencies: agentDependencies,
+    modules: {
+      askar: new AskarModule({ ariesAskar }),
+      connections: new core.ConnectionsModule({ autoAcceptConnections: true }),
+      anoncredsRs: new AnonCredsRsModule({
+        anoncreds,
+      }),
+      indyVdr: new IndyVdrModule({
+        indyVdr,
+        networks: [
+          {
+            isProduction: false,
+            indyNamespace: 'BCOVRIN_TEST_GENESIS',
+            genesisTransactions: BCOVRIN_TEST_GENESIS,
+            connectOnStartup: true,
+          },
+        ],
+      }),
+      anoncreds: new AnonCredsModule({
+        registries: [new IndyVdrAnonCredsRegistry()],
+      }),
+      dids: new DidsModule({
+        registrars: [new IndyVdrIndyDidRegistrar()],
+        resolvers: [new IndyVdrIndyDidResolver()],
+      }),
+      credentials: new core.CredentialsModule({
+        credentialProtocols: [
+          new V2CredentialProtocol({
+            credentialFormats: [new LegacyIndyCredentialFormatService(), new AnonCredsCredentialFormatService()],
+          }),
+        ],
+      }),
+    },
+  })
 
   const httpInbound = new HttpInboundTransport({
     port: portNum,
