@@ -11,8 +11,10 @@ import {
   BasicMessageRole,
   OutOfBandInvitation,
 } from '@aries-framework/core'
-import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent,  AgentMessage } from '@aries-framework/core'
+import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, AgentMessage } from '@aries-framework/core'
 import { Attributes } from './types.js'
+import { CreateCredentialOfferOptions } from '@hyperledger/anoncreds-nodejs'
+import { DemoAgent } from './baseAgent.js'
 
 
 export const createNewInvitation = async (agent: Agent, url: string) => {
@@ -29,15 +31,17 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
 
 export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr: any, url: string) => {
   return await createCredOffer(agent, id, attr).then(async (data) => {
-    console.log("CRED DATA: " +JSON.stringify(data))
+    console.log("CRED DATA: " + JSON.stringify(data.credentialRecord.id))
     const senderConfig = {
-      recordId: id,
-      message: data.message,
-      domain: url
+      label: "xyz-university",
+      imageUrl: "https://i.imgur.com/g3abcCO.png",
+      autoAcceptConnection: true,
+      messages: [data.message],
     };
-    const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig);
+    const outOfBandRecord = await agent.oob.createInvitation(senderConfig);
+    console.log("invite created ----------")
     return {
-      invitationUrl: outOfBandRecord.invitationUrl
+      invitationUrl: outOfBandRecord.outOfBandInvitation.toUrl({ domain: url })
     };
   });
 };
@@ -64,7 +68,7 @@ export const receiveInvitation = async (agent: Agent, invitationUrl: string) => 
     autoAcceptConnection: true,
     reuseConnection: true
   }
-  const record: OutOfBandInvitation = await agent.oob. parseInvitation(invitationUrl)
+  const record: OutOfBandInvitation = await agent.oob.parseInvitation(invitationUrl)
   const { outOfBandRecord } = await agent.oob.receiveInvitation(record, reciverConfig)
   console.log(`out of band id: ` + outOfBandRecord.id)
   return outOfBandRecord
@@ -104,11 +108,12 @@ export async function messageListener(agent: Agent, name: string) {
 }
 
 
-export async function createCredOffer(agent: Agent, credId: string, attributeData: Attributes) {
+export async function createCredOffer(agent: DemoAgent, credId: string, attributeData: Attributes) {
 
-  const credFormat = {
+  const credMsg = await agent.credentials.createOffer({
+    protocolVersion: 'v1',
+    credentialFormats: {
       indy: {
-        credentialDefinitionId: credId,
         attributes: [
           { name: 'id', value: attributeData.id },
           { name: 'name', value: attributeData.name },
@@ -116,28 +121,25 @@ export async function createCredOffer(agent: Agent, credId: string, attributeDat
           { name: 'year', value: attributeData.year },
           { name: 'mark', value: attributeData.mark },
         ],
+        credentialDefinitionId: credId,
       },
     }
-//as any - this was suggested by chatGPT
-  const credMsg = await (agent.credentials as any).createOffer({
-    protocolVersion:'v2',
-    credentialFormat: credFormat,
   });
   return credMsg;
 }
 
 export const AgentCleanup = async (agent: Agent) => {
-    console.log('Starting cleanup')
-    agent.connections.getAll().then((connections) => {
-      connections.map((connection) => agent.connections.deleteById(connection.id))
-    })
-    agent.credentials.getAll().then((credentials) => {
-      credentials.map((credential) => agent.credentials.deleteById(credential.id))
-    })
-    agent.proofs.getAll().then((proofs) => {
-      proofs.map((proof) => agent.proofs.deleteById(proof.id))
-    })
-    console.log('Cleanup completed')
+  console.log('Starting cleanup')
+  agent.connections.getAll().then((connections) => {
+    connections.map((connection) => agent.connections.deleteById(connection.id))
+  })
+  agent.credentials.getAll().then((credentials) => {
+    credentials.map((credential) => agent.credentials.deleteById(credential.id))
+  })
+  agent.proofs.getAll().then((proofs) => {
+    proofs.map((proof) => agent.proofs.deleteById(proof.id))
+  })
+  console.log('Cleanup completed')
 }
 
 

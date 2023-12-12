@@ -15,7 +15,6 @@ export interface StudentData {
     RollNo: string;
     creds: Cred[];
 }
-
 const randomStudentData: StudentData[] = [
     {
         name: 'john',
@@ -51,7 +50,7 @@ const randomStudentData: StudentData[] = [
     // Add more students as needed
 ];
 
-export const url = "https://ba20-103-171-58-102.ngrok-free.app/ssi?id=c8cf615e"
+export const url = "https://e208-35-230-114-54.ngrok.io/ssi?id=78ad5707"
 
 export const message = {
     "id":"80bb0a2b-3bea-4fb2-957e-f52a461d139d",

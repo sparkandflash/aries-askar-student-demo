@@ -20,7 +20,7 @@ const run = async () => {
   console.log('[server] starting university server')
   const endpoint = await startNgrok(3002)
 
-serverApp(UNIAgent, 3002, endpoint).listen(3002)
+serverApp(UNIAgent, endpoint).listen(3002)
 
  /* await startServer(UNIAgent, {
     port: 3002,
