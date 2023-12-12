@@ -1,6 +1,6 @@
 
 ## details
-- uses [aries-js frame work rest extension](https://github.com/openwallet-foundation/agent-framework-javascript-ext.git), with swagger ui. along with an express server, borrowing credential functions and logger from [animo demo](https://github.com/animo/animo-demo)
+- uses [aries-js frame work rest extension](https://github.com/openwallet-foundation/agent-framework-javascript-ext.git), with swagger ui. along with an express server, borrowing server set up, credential functions and logger from [animo demo](https://github.com/animo/animo-demo)
 ### available APIs
 - university agent:
 - GET `/uniCreateInvite?data=` - uses createInvitation(), requires url to be given, returns invite URL.
