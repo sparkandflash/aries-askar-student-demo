@@ -1,41 +1,43 @@
 //add student form here
 import React, { useEffect, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react';
-import randomStudentData, { Attributes, Cred, StudentData, url } from '../studentData'; // Assuming you have a type/interface named StudentData
+import { Attributes, url } from '../studentData';
 import useAttributes from '../hooks/useAttributes';
 import {
     FormLabel, HStack, VStack, Input, Button, Text, Box, FormControl,
 } from "@chakra-ui/react"
 
 import { getCredDefId, getCredDetails, issueCredential } from '@/pages/api/credApi';
-import { getConnectionId, makeInvitationWMSG, makeInvite, makeOobInviteMSg } from '@/pages/api/connectionAPI';
-import { ConnectionInvitationMessage } from '@aries-framework/core';
+import { makeInvite } from '@/pages/api/connectionAPI';
+
 function stud() {
     const [rollId, setRollId] = useState<string>('');
     const [credStatus, setCredStatus] = useState(false)
-    const [cred, setCred] = useState<Cred[] | undefined>()
-    const [student, setStudent] = useState<StudentData | undefined>()
     const [credDefId, setCredDefId] = useState("")
-    const [connId, setConnId] = useState("")
     const { attributes, setAttributesData } = useAttributes();
     const [inviteUrl, setInviteUrl] = useState<string>('');
-    async function getCredId() {
-        let id = await getCredDefId()
-        setCredDefId(id)
-    }
+
+  
     async function findStudentByRoll() {
         //replace this with function to fetch the student data from postGres
         if (rollId != "") {
             const studentCred = await getCredDetails(rollId)
             console.log(studentCred.data.length)
             if (studentCred.data.length > 0) {
+
                 setAttributesData(studentCred.data[0].credentialAttributes)
                 setCredStatus(true)
                 setInviteUrl('')
-            }
-            else {
+            }else{
                 setCredStatus(false)
+                setInviteUrl('')
+                setAttributesData(null)
             }
+        }
+        else{
+            setCredStatus(false)
+            setInviteUrl('')
+            setAttributesData(null)
         }
     }
     //import the aries asakar action action functions
@@ -46,18 +48,12 @@ function stud() {
                 setInviteUrl(response.data.url)
 
                 console.log(JSON.stringify(response.data.url))
-                setConnId(response.data.id)
             });
         } catch (error) {
             console.error("Error accepting invite:", error);
         }
     }
-    useEffect(() => {
-        // const source = new EventSource('http://localhost:5001/inviteStatus')
-        //  source.onmessage = e => console.log(e.data)
-        getCredId()
-    }, [])
-
+   
     async function acceptCred(attr: Attributes) {
         try {
             await issueCredential(attr)
@@ -70,32 +66,45 @@ function stud() {
         }
     }
 
-    
+    function Cretificate(attribute:Attributes){
+        return(
+            <Box>
+            name: {attribute.name} | course: {attribute.course} | id: {attribute.id} | marks: {attribute.mark} | year: {attribute.year} <Button onClick={() => acceptCred(attribute)}>accept</Button>
+        </Box>
+        )
+    }
+
 
     return (
         <VStack marginTop={30} spacing={5} direction='column'>
+            <Text>generate qr code for the invite url</Text>
+            <Input width={650} onChange={e => setInviteUrl(e.target.value)} placeholder='inviteUrl' />
             {inviteUrl ?
-                <div><QRCodeCanvas size={600} value={inviteUrl} /> <br />
-                    <Box width="70%"> <Text>invite: {inviteUrl}</Text> </Box>
+                <div><QRCodeCanvas size={400} value={inviteUrl} /> <br />
                 </div> : <div></div>}
-            <HStack>
-                <FormControl isRequired={true}>
-                    <FormLabel width={20}>RollNo</FormLabel>
-                    <Input width={350} onChange={e => setRollId(e.target.value)} placeholder='Your ID' />
-                </FormControl>
-            </HStack>
-            <Button onClick={findStudentByRoll} colorScheme='blue'>find</Button>
-            {credStatus ? <div>
-                <Button onClick={acceptinvite} >connect</Button>
-                <Text>student no: {attributes.id}</Text>
-                <Box>
-                    name: {attributes.name} | course: {attributes.course} | id: {attributes.id} <Button onClick={() => acceptCred(attributes)}>accept</Button>
-                </Box>
-            </div> : <div> </div>}
-            <Box width="70%"><Text>cred def id: {credDefId}</Text>
+            <Button onClick={acceptinvite} >connect to another agent</Button><Button onClick={() => setInviteUrl('')}>cancel</Button>
+
+            <Box padding="10px" width="70%" borderWidth={1}>
+                <Text fontSize={20}>deBug</Text>
+                <VStack>
+                    <HStack>
+                        <FormControl isRequired={true}>
+                            <FormLabel width={20}>RollNo</FormLabel>
+                            <Input width={350} onChange={e => setRollId(e.target.value)} placeholder='Your ID' />
+                        </FormControl>
+                    </HStack>
+                    <Button onClick={findStudentByRoll} colorScheme='blue'>find</Button>
+                    {credStatus ? <div>
+
+                        <Text>student no: {attributes.id}</Text>
+                        <Cretificate {...attributes} />
+                    </div> : <div> </div>}
+                   
+                    <Text noOfLines={1}><b>short invite URL:</b> {inviteUrl}</Text>
+                </VStack>
+
             </Box>
         </VStack>
-
     )
 }
 export default stud

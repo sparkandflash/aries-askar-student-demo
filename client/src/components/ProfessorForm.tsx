@@ -2,36 +2,28 @@ import {
     FormLabel, Text, HStack, VStack, Input, Button
 } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
-import { getCredDefId, issueCredentialOffer } from '@/pages/api/credApi';
-import { makeInvitationWMSG, makeOobInviteMSg, shortenUrl } from "@/pages/api/connectionAPI";
+import { getCredDefId } from '@/pages/api/credApi';
+import { makeInvitationWMSG, shortenUrl } from "@/pages/api/connectionAPI";
 import useAttributes from "@/hooks/useAttributes";
 
 function Prof() {
     const [form, setForm] = useState({ name: '', id: '', course: '', year: '', mark: '' })
-    const { attributes, setAttributesData } = useAttributes();
-    const [credId, setCredId] = useState('')
-    async function getCredId() {
-        let id = await getCredDefId()
-        if (id == "") {
-            setCredId("server not available")
-        }
-        setCredId(JSON.parse(JSON.stringify(id)))
-        console.log(JSON.stringify(id))
-    }
-
+    const [urlS, setUrl] = useState('')
+ 
     async function addNewCerd() {
-        //TODO:  send this form data to a db first
+        setUrl("")
+        //TODO:  send this form data to a db first- roll id and crednetial offer invite urls
         let response = await makeInvitationWMSG(form)
         const url = await shortenUrl(response)
         console.log(url)
+        if(url){
+        setUrl(url)}
         //store the response somewhere
     }
-    useEffect(() => {
-        getCredId()
-    }, [])
-
+ 
     return (
         <VStack marginTop={20} spacing={8} direction='column'>
+            <Text>{urlS}</Text>
             <HStack>
 
                 <FormLabel width={20}>RollNo</FormLabel>

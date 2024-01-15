@@ -1,16 +1,18 @@
-
+## upgrading to 0.4.2
 ## details
+### available APIs
+- university agent:
+- GET `/uniCreateInvite?data=` - uses createInvitation(), requires url to be given, returns invite URL.
+- GET `/createInvite` - uses createLegacyInvitation(), returns invite URL.
+- POST `/acceptCred` - still in development, it is supposed to generate a credential offer, and return a invitation URL that lets you obtain the credential. It needs credential attribute data as body.
+- GET `/sendMsg?msg=&connectionId=` - send a message to another agent.
+- GET `/getCredDefId` - fetch the credential definiation ID of the marks card.
+- GET `/credAttr?value=` - fetch credentials based on attribute values.
+- GET `/ssi?id=` - forwards to the long invite URL mapped to the id.
+- POST `/shorten` - retuns a shoterned URL, it takes the long invitation url as the body.
+- GET `/cleanUp` - clears all connection, credential, proofs data.
 
-### implemented:
-- uni sends invite to student
-- uni and student can send msgs to eachother
-- uni register ceritificate schema [without connection id]
-- uni creates new certificates using schema [without conenction id]
-
-### pending implementations
-- ceritificate details is stored in db
-- when student accepts- certificate is fetched from db, created by uni agent and sent to student along with connection invitation in form of qr code
-
+- test agent has `/sendMsg?msg=`, `/cleanUp`, and `/accept?data=` that accepts invitations from other agents. 
 ### setting up
 - `nvm use` 
 - uses node 18

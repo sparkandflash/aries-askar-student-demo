@@ -1,5 +1,4 @@
-import { Attributes } from "@/studentData"
-import { AgentMessage } from '@aries-framework/core';
+import { Attributes } from '@/studentData'
 import { apiCall } from './BaseUrl'
 
 export async function getCredDefId() {
@@ -14,7 +13,7 @@ export async function getCredDefId() {
 
 export async function issueCredential(/*credId: string, condId: string,*/ attributeData: Attributes) {
     try {
-        let response: AgentMessage = await apiCall.post(`/credentials/offer-credential`, {
+        let response = await apiCall.post(`/credentials/offer-credential`, {
             protocolVersion: "v2",
             credentialFormats: {
                 anoncreds: {

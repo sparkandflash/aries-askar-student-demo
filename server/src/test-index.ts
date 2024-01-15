@@ -1,12 +1,11 @@
 import { startServer } from '@aries-framework/rest'
-import { getConnectionRecord, messageListener, receiveInvitation, setupConnectionListener } from './utils/agentFunctions.js'
+import { AgentCleanup, getConnectionRecord, messageListener, receiveInvitation, setupConnectionListener } from './utils/agentFunctions.js'
 import { Agent, AutoAcceptCredential, AutoAcceptProof, HttpOutboundTransport, LogLevel, OutOfBandRecord, WsOutboundTransport } from '@aries-framework/core'
 import type { InitConfig, WalletConfig } from '@aries-framework/core'
 import type { Express } from 'express'
 import { createExpressServer } from 'routing-controllers'
 import { HttpInboundTransport, agentDependencies } from '@aries-framework/node'
 import { BCOVRIN_TEST_GENESIS } from './utils/utils.js'
-import { AgentCleanup } from './utils/AgentCleanup.js'
 import { TestLogger } from './utils/logger.js'
 
 const logger = new TestLogger(process.env.NODE_ENV ? LogLevel.error : LogLevel.debug)

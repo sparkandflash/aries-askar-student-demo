@@ -8,3 +8,5 @@
 - one credential definition for the certificates
 - many stuff borrowed from animo-demo code base.
 - error handling and validation not set up
+
+### if running on gitpod- remember to set the server ports to public

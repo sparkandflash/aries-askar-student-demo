@@ -1,8 +1,9 @@
-import type { CredDef, Schema } from 'indy-sdk'
+import type { CredDef } from 'indy-sdk'
 
-import { Agent, CredentialExchangeRecord, CredentialPreviewAttribute, IndySdkError } from '@aries-framework/core'
-import { isIndyError } from '@aries-framework/core/build/utils/indyError.js'
+import { Agent, CredentialExchangeRecord, CredentialPreviewAttribute, DidCreateOptions, KeyType, TypedArrayEncoder, utils } from '@aries-framework/core'
 import { Inject, Service } from 'typedi'
+import { indyNetworkConfig } from '../utils/baseAgent.js';
+import { AnonCredsCredentialDefinition, RegisterCredentialDefinitionReturnStateFinished } from '@aries-framework/anoncreds';
 
 type CredentialExchangeRecordWithAttributes = CredentialExchangeRecord & {
   credentialAttributes?: CredentialPreviewAttribute[];
@@ -12,21 +13,44 @@ type CredentialExchangeRecordWithAttributes = CredentialExchangeRecord & {
 export class CredDefService {
   @Inject()
   private agent: Agent
-  private credentialDefinitions: CredDef[] = []
-
+  private credentialDefinitions: RegisterCredentialDefinitionReturnStateFinished[] = []
+  public anonCredsIssuerId?: string
+  public credentialDefinition?: RegisterCredentialDefinitionReturnStateFinished
   public constructor(agent: Agent) {
     this.agent = agent
     this.init()
+
+  }
+  public async importDid() {
+    // NOTE: we assume the did is already registered on the ledger, we just store the private key in the wallet
+    // and store the existing did in the wallet
+    // indy did is based on private key (seed)
+    const unqualifiedIndyDid = '2jEvRuKmfBJTRa7QowDpNN'
+    const indyDid = `did:indy:${indyNetworkConfig.indyNamespace}:${unqualifiedIndyDid}`
+
+    const did = indyDid
+    await this.agent.dids.import({
+      did,
+      overwrite: true,
+      privateKeys: [
+        {
+          keyType: KeyType.Ed25519,
+          privateKey: TypedArrayEncoder.fromString('afjdemoverysercure00000000000000'),
+        },
+      ],
+    })
+    this.anonCredsIssuerId = did
+    return did
   }
 
   public getCredentialDefinitionIdByTag(tag: string) {
-    const def = this.credentialDefinitions.find((x) => x.tag === tag)
+    const def = this.credentialDefinitions.find((x) => x.credentialDefinition.tag === tag)
 
     if (!def) {
       throw new Error(`CredentialDefinition not found for ${tag}`)
     }
 
-    return def.id
+    return def.credentialDefinitionId
   }
 
   // FIXME: this will break if called concurrently. We need to do this in setup, and agent can't be used until it is done.
@@ -62,13 +86,13 @@ export class CredDefService {
     return filteredCredentialExchangeRecords;
   }
 
-
   // TODO: these should be auto-created based on the use cases.
   private async init() {
+
     const cd1 = await this.createSchemaCredentialDefinition({
       schema: {
         attributeNames: ['id', 'name', 'course', 'year', 'mark'],
-        name: 'marks-card',
+        name: 'marks-card' + utils.uuid(),
         version: '1.1',
       },
       credentialDefinition: {
@@ -76,7 +100,9 @@ export class CredDefService {
         tag: 'university-marks-card',
       },
     })
-    this.credentialDefinitions = await Promise.all([cd1])
+    if (cd1 != undefined) {
+      this.credentialDefinitions = await Promise.all([cd1])
+    }
   }
 
   private async createSchemaCredentialDefinition(options: {
@@ -90,36 +116,45 @@ export class CredDefService {
       supportRevocation: boolean
     }
   }) {
-    const publicDid = this.agent.publicDid?.did
-    if (!publicDid) {
-      throw new Error('Public DID not found')
-    }
+    let did = this.importDid()
+    if (await did) {
+      try {
+        const schemaResult = await this.agent.modules.anoncreds.registerSchema({
+          schema: {
+            attrNames: options.schema.attributeNames,
+            issuerId: this.anonCredsIssuerId,
+            name: options.schema.name,
+            version: options.schema.version,
+          },
+          options: {},
+        });
 
-    const schemaId = `${publicDid}:2:${options.schema.name}:${options.schema.version}`
+        if (schemaResult.schemaState.state === 'failed') {
+          throw new Error(`Error creating schema: ${schemaResult.schemaState.reason}`);
+        }
 
-    let schema: Schema
+        const { credentialDefinitionState } = await this.agent.modules.anoncreds.registerCredentialDefinition({
+          credentialDefinition: {
+            tag: options.credentialDefinition.tag,
+            issuerId: this.anonCredsIssuerId,
+            schemaId: schemaResult.schemaState.schemaId,
+          },
+          options: {
+            endorserMode: 'internal',
+            endorserDid: this.anonCredsIssuerId,
+          },
+        });
 
-    try {
-      schema = await this.agent.ledger.getSchema(schemaId)
-      this.agent.config.logger.info(`Schema ${schema.id} already exists`)
-    } catch (error) {
-      if (error instanceof IndySdkError && isIndyError(error.cause, 'LedgerNotFound')) {
-        this.agent.config.logger.info(`Schema ${schemaId} does not exist yet, creating it...`)
-        schema = await this.agent.ledger.registerSchema({
-          attributes: options.schema.attributeNames,
-          name: options.schema.name,
-          version: options.schema.version,
-        })
-      } else {
-        this.agent.config.logger.info(`Error fetching ${schemaId}`)
-        throw error
+        if (credentialDefinitionState.state === 'failed') {
+          throw new Error(`Error creating credential definition: ${credentialDefinitionState.reason}`);
+        }
+        this.credentialDefinition = credentialDefinitionState
+        return this.credentialDefinition;
+      } catch (e) {
+        console.error(e);
+        // Handle the error further if needed
+        throw e;
       }
     }
-
-    return await this.agent.ledger.registerCredentialDefinition({
-      schema,
-      supportRevocation: options.credentialDefinition.supportRevocation,
-      tag: options.credentialDefinition.tag,
-    })
   }
 }

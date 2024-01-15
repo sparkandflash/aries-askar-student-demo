@@ -11,8 +11,9 @@ import {
   BasicMessageRole,
   OutOfBandInvitation,
 } from '@aries-framework/core'
-import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, CreateOfferOptions, IndyCredentialFormat, V1CredentialService, V2CredentialService, AgentMessage } from '@aries-framework/core'
+import { ConnectionStateChangedEvent, BasicMessageStateChangedEvent, AgentMessage } from '@aries-framework/core'
 import { Attributes } from './types.js'
+import { DemoAgent } from './baseAgent.js'
 
 
 export const createNewInvitation = async (agent: Agent, url: string) => {
@@ -29,7 +30,7 @@ export const createNewInvitation = async (agent: Agent, url: string) => {
 
 export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr: any, url: string) => {
   return await createCredOffer(agent, id, attr).then(async (data) => {
-    console.log("CRED DATA: " +JSON.stringify(data))
+    console.log("CRED DATA: " + JSON.stringify(data.credentialRecord.id))
     const senderConfig = {
       autoAcceptConnection: true,
       messages: [data.message],
@@ -65,7 +66,7 @@ export const receiveInvitation = async (agent: Agent, invitationUrl: string) => 
     autoAcceptConnection: true,
     reuseConnection: true
   }
-  const record: OutOfBandInvitation = await agent.oob.parseInvitationShortUrl(invitationUrl)
+  const record: OutOfBandInvitation = await agent.oob.parseInvitation(invitationUrl)
   const { outOfBandRecord } = await agent.oob.receiveInvitation(record, reciverConfig)
   console.log(`out of band id: ` + outOfBandRecord.id)
   return outOfBandRecord
@@ -104,25 +105,39 @@ export async function messageListener(agent: Agent, name: string) {
   })
 }
 
-export async function createCredOffer(agent: Agent, credId: string, attributeData: Attributes) {
-  const credFormat: CreateOfferOptions<[IndyCredentialFormat], [V1CredentialService, V2CredentialService<[IndyCredentialFormat]>]> = {
-    protocolVersion: 'v1' || 'v2',
+
+export async function createCredOffer(agent: DemoAgent, credId: string, attributeData: Attributes) {
+
+  const credMsg = await agent.credentials.createOffer({
+    protocolVersion: 'v1',
     credentialFormats: {
       indy: {
-        credentialDefinitionId: credId,
         attributes: [
           { name: 'id', value: attributeData.id },
           { name: 'name', value: attributeData.name },
           { name: 'course', value: attributeData.course },
           { name: 'year', value: attributeData.year },
           { name: 'mark', value: attributeData.mark },
-        ]
+        ],
+        credentialDefinitionId: credId,
       },
-    },
-  }
+    }
+  });
+  return credMsg;
+}
 
-  const credMsg = await agent.credentials.createOffer(credFormat)
-  return credMsg
+export const AgentCleanup = async (agent: Agent) => {
+  console.log('Starting cleanup')
+  agent.connections.getAll().then((connections) => {
+    connections.map((connection) => agent.connections.deleteById(connection.id))
+  })
+  agent.credentials.getAll().then((credentials) => {
+    credentials.map((credential) => agent.credentials.deleteById(credential.id))
+  })
+  agent.proofs.getAll().then((proofs) => {
+    proofs.map((proof) => agent.proofs.deleteById(proof.id))
+  })
+  console.log('Cleanup completed')
 }
 
 

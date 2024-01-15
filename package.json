@@ -18,7 +18,7 @@
         "build-server": "yarn workspace server build"
     },
     "devDependencies": {
-        "@aries-framework/core": "^0.2.3",
+        "@aries-framework/core": "^0.4.2",
         "@typescript-eslint/eslint-plugin": "^5.6.0",
         "@typescript-eslint/parser": "^5.38.1",
         "@typescript-eslint/visitor-keys": "^5.10.2",
@@ -35,7 +35,6 @@
     "dependencies": {
         "@types/node": "^20.9.4",
         "@types/yargs": "^17.0.32",
-        "cron": "^3.1.6",
         "ngrok": "^5.0.0-beta.2",
         "routing-controllers": "^0.10.4",
         "ts-node": "^10.9.1"

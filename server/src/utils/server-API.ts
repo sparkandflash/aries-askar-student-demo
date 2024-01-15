@@ -1,20 +1,22 @@
 import { createExpressServer, useContainer } from "routing-controllers";
-import type { Express, Request, Response } from 'express'
-import express from "express";
-import { createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation } from "./agentFunctions.js";
+import express, { Express,Application, Request, Response } from "express";
+import { AgentCleanup, createNewInvitation, createNewInvitationwithMsg, createNewLegacyInvitation } from "./agentFunctions.js";
 import { Agent, RecordNotFoundError } from "@aries-framework/core";
-import { AgentCleanup } from "./AgentCleanup.js";
 import { Container } from 'typedi'
+import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import { CredDefService } from "../controller/CredDefService.js";
 const urlMap: { [shortId: string]: string } = {};
 
-export function serverApp(agent: Agent, portnum: number, endpoint: string) {
-    const App: Express = createExpressServer({
-        controllers: ['./controllers/**/*.ts', './controllers/**/*.js'],
-        cors: true,
-    })
+export function serverApp(agent: Agent, endpoint: string) {
+    const App:Application = express()
 
+    var corsOptions = {
+        origin: 'https://3000-sparkandfla-ariesaskars-6jqwty1td6o.ws-us106.gitpod.io',
+        optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+      }
+
+    App.use(cors(corsOptions))
     App.use(express.json());
     const credDefService = new CredDefService(agent)
     useContainer(Container)
