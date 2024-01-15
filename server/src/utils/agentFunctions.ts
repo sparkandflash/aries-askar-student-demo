@@ -31,14 +31,15 @@ export const createNewInvitationwithMsg = async (agent: Agent, id: string, attr:
   return await createCredOffer(agent, id, attr).then(async (data) => {
     console.log("CRED DATA: " +JSON.stringify(data))
     const senderConfig = {
-      recordId: id,
-      message: data.message,
-      domain: url
+      autoAcceptConnection: true,
+      messages: [data.message],
+      label: "portal-server",
+      imageUrl: "https://i.imgur.com/g3abcCO.png",
     };
-    const outOfBandRecord = await agent.oob.createLegacyConnectionlessInvitation(senderConfig);
+    const outOfBandRecord = await agent.oob.createInvitation(senderConfig)
     return {
-      invitationUrl: outOfBandRecord.invitationUrl
-    };
+      invitationUrl: outOfBandRecord.outOfBandInvitation.toUrl({ domain: url }),
+    }
   });
 };
 

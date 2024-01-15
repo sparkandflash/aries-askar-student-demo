@@ -12,25 +12,25 @@ export async function getCredDefId() {
     }
 }
 
-export async function issueCredential(credId: string, condId: string, attributeData: Attributes) {
+export async function issueCredential(/*credId: string, condId: string,*/ attributeData: Attributes) {
     try {
         let response: AgentMessage = await apiCall.post(`/credentials/offer-credential`, {
             protocolVersion: "v2",
             credentialFormats: {
-                indy: {
-                    credentialDefinitionId: credId,
+                anoncreds: {
+                  
                     attributes: [
                         { name: 'id', value: attributeData.id },
                         { name: 'name', value: attributeData.name },
                         { name: 'course', value: attributeData.course },
                         { name: 'year', value: attributeData.year },
                         { name: 'mark', value: attributeData.mark },
-                    ]
+                    ],
+                    credentialDefinitionId: "q7ATwTYbQDgiigVijUAej:3:CL:183492:university-marks-card",
                 }
             },
             autoAcceptCredential: "always",
-            connectionId: condId
-
+            connectionId: "013ed475-459b-4977-80e2-94783edc5ab3"
         })
         return response
     }
@@ -43,7 +43,7 @@ export async function issueCredentialOffer(credId: string, attributeData: Attrib
     try {
 
         const response = await apiCall.post(`/credentials/create-offer`, {
-            protocolVersion: "v1" || "v2",
+            protocolVersion: "v1",
             credentialFormats: {
                 indy: {
                     credentialDefinitionId: credId,

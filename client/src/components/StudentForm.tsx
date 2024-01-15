@@ -60,7 +60,8 @@ function stud() {
 
     async function acceptCred(attr: Attributes) {
         try {
-        //   await makeInvitationWMSG(attr)
+            await issueCredential(attr)
+          // await makeInvitationWMSG(attr)
         //    await makeOobInviteMSg().then(async (response: any) => {     
                     setInviteUrl(url)
            // });
